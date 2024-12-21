@@ -33,6 +33,8 @@ def zip_folder(folder_path):
         for file in files:
             if file == name:
                 continue
+            if file.endswith(".py") or file.endswith(".ico") or file.endswith(".txt"):
+                continue
             file_path = os.path.join(root, file)
             if ".git" in file_path:
                 continue
@@ -68,7 +70,7 @@ elif os.name == 'posix':
             continue
         shutil.rmtree(local + os.sep + "bin" + os.sep + "Linux" + os.sep + i)
 for i in os.listdir(local):
-    if i not in ['run', 'run.exe', 'bin', 'LICENSE']:
+    if i not in ['run', 'run.exe', 'bin', 'LICENSE'] and not i.endswith(".py") and not i.endswith(".ico") and not i.endswith(".txt"):
         print(f"Removing {i}")
         if os.path.isdir(local + os.sep + i):
             try:
