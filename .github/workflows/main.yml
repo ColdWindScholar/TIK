@@ -125,6 +125,7 @@ jobs:
 
       - name: Build Tool (English)
         run: |
+          ls
           rm -rf TIK-linux.zip
           rm -rf run.py
           mv run_english.py run.py
