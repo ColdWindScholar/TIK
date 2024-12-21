@@ -79,7 +79,7 @@ jobs:
         run: |
           del ./TIK-win.zip
           del ./run.py
-          del ./run
+          del ./run.exe
           move ./run_english.py ./run.py
           python build.py
       - name: Upload Win Build
