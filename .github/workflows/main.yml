@@ -79,6 +79,7 @@ jobs:
         run: |
           del ./TIK-win.zip
           del ./run.py
+          del ./run
           move ./run_english.py ./run.py
           python build.py
       - name: Upload Win Build
@@ -91,6 +92,7 @@ jobs:
         run: |
           del ./TIK-win.zip
           del ./run.py
+          del ./run.exe
           move ./run_russian.py ./run.py
           python build.py
       - name: Upload Win Build
@@ -128,6 +130,7 @@ jobs:
           ls
           rm -rf TIK-linux.zip
           rm -rf run.py
+          rm -rf run
           mv run_english.py run.py
           python3 build.py
       - name: Upload Linux Build
@@ -141,6 +144,7 @@ jobs:
         run: |
           rm -rf TIK-linux.zip
           rm -rf run.py
+          rm -rf run
           mv run_russian.py run.py
           python3 build.py
       - name: Upload Linux Build
