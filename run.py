@@ -227,7 +227,7 @@ class upgrade:
                     except (BaseException, Exception):
                         input("Download error, please try again later")
                         return
-                    print("开始更新，请不要关闭工具...")
+                    print("Starting update, please do not close the tool...")
                     upgrade_pkg = os.path.join(temp, os.path.basename(link))
                     extract_path = os.path.join(temp, 'update')
                     if os.path.exists(extract_path):
@@ -235,7 +235,7 @@ class upgrade:
                     try:
                         zipfile.ZipFile(upgrade_pkg).extractall(extract_path)
                     except (Exception, BaseException):
-                        input("更新文件损坏， 无法更新")
+                        input("The update file is damaged and cannot be updated")
                         return
                     self.settings = json_edit(setfile).read()
                     json2 = json_edit(os.path.join(extract_path, 'bin', 'settings.json')).read()
