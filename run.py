@@ -164,12 +164,16 @@ class set_utils:
         with open(self.path, 'r') as ss:
             data = json.load(ss)
             [setattr(self, v, data[v]) for v in data]
-        self.language_dict = getattr(languages, settings.language)
+        if hasattr(languages, settings.language):
+            self.language_dict = getattr(languages, settings.language)
         def sys_stdout_write(s:str):
-            for i in self.language_dict:
-                if i in s:
-                    s = s.replace(i, self.language_dict.get(i, i))
-            s = self.language_dict.get(s, s)
+            t = self.language_dict.get(s, s)
+            if s != t :s = t
+            else:
+                for i in self.language_dict:
+                    if i in s:
+                        s = s.replace(i, self.language_dict.get(i, i))
+
             sys_stdout_write_(s)
         sys.stdout.write = sys_stdout_write
 
