@@ -3,7 +3,7 @@ import platform
 import shutil
 import zipfile
 
-import banner
+from src import banner
 
 print(f'\033[31m {banner.banner1} \033[0m')
 print(f'Build for {platform.system()}')

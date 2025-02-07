@@ -12,12 +12,12 @@ from argparse import Namespace
 from configparser import ConfigParser
 from io import BytesIO
 from os import path as o_path
-import banner
-import ext4
-from Magisk import Magisk_patch
+from src import banner
+from src import ext4
+from src.Magisk import Magisk_patch
 import os
 
-from dumper import Dumper
+from src.dumper import Dumper
 
 if os.name == 'nt':
     import ctypes
@@ -29,21 +29,21 @@ else:
 import extract_dtb
 import requests
 from rich.progress import track
-import contextpatch
-import downloader
-import fspatch
-import imgextractor
-import lpunpack
-import mkdtboimg
-import ofp_mtk_decrypt
-import ofp_qc_decrypt
-import ozipdecrypt
-import utils
-from api import cls, dir_has, cat, dirsize, re_folder, f_remove
-from log import LOGS, LOGE, ysuc, yecho, ywarn
-from utils import gettype, simg2img, call
-import opscrypto
-import zip2mpk
+from src import contextpatch
+from src import downloader
+from src import fspatch
+from src import imgextractor
+from src import lpunpack
+from src import mkdtboimg
+from src import ofp_mtk_decrypt
+from src import ofp_qc_decrypt
+from src import ozipdecrypt
+from src import utils
+from src.api import cls, dir_has, cat, dirsize, re_folder, f_remove
+from src.log import LOGS, LOGE, ysuc, yecho, ywarn
+from src.utils import gettype, simg2img, call
+from src import opscrypto
+from src import zip2mpk
 from rich.table import Table
 from rich.console import Console
 
