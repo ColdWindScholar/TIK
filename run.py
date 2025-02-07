@@ -166,21 +166,11 @@ class set_utils:
             [setattr(self, v, data[v]) for v in data]
         self.language_dict = getattr(languages, settings.language)
         def sys_stdout_write(s:str):
-            front = ''
-            end = ''
-            if s.startswith('\x1b[') and s.endswith('\033[0m'):
-                front = s[:5]
-                end = s[-4:]
-                s = s[5:-4]
-            s_t = s.strip()
             for i in self.language_dict:
                 if i in s:
                     s = s.replace(i, self.language_dict.get(i, i))
-            if s_t in self.language_dict.keys():
-                s = s.replace(s_t, self.language_dict.get(s_t, s_t))
             s = self.language_dict.get(s, s)
-            sys_stdout_write_(front + s + end)
-
+            sys_stdout_write_(s)
         sys.stdout.write = sys_stdout_write
 
     def change(self, name, value):
