@@ -1406,14 +1406,14 @@ def undtbo(project, infile):
             ...
     yecho("正在解压dtbo.img")
     mkdtboimg.dump_dtbo(infile, dtbodir + os.sep + "dtbo_files" + os.sep + "dtbo")
-    for dtbo_files in os.listdir(dtbodir + os.sep + "dtbo_files"):
-        if dtbo_files.startswith('dtbo.'):
-            dts_files = dtbo_files.replace("dtbo", 'dts')
-            yecho(f"正在反编译{dtbo_files}为{dts_files}")
-            dtbofiles = dtbodir + os.sep + "dtbo_files" + os.sep + dtbo_files
-            if call(f'dtc -@ -I "dtb" -O "dts" {dtbofiles} -o "{dtbodir + os.sep + "dts_files" + os.sep + dts_files}"',
+    for dtbo_file in os.listdir(dtbodir + os.sep + "dtbo_files"):
+        if dtbo_file.startswith('dtbo.'):
+            dts_files = dtbo_file.replace("dtbo", 'dts')
+            yecho(f"正在反编译{dtbo_file}为{dts_files}")
+            dtbofiles = dtbodir +  "/dtbo_files/" + dtbo_file
+            if call(['dtc', '-@', '-I', 'dtb', '-O', 'dts', dtbofiles, '-o', f"{dtbodir}/dts_files/{dts_files}"],
                     out=1) != 0:
-                ywarn(f"反编译{dtbo_files}失败！")
+                ywarn(f"反编译{dtbo_file}失败！")
     ysuc("完成！")
     time.sleep(1)
 
@@ -1429,7 +1429,7 @@ def makedtbo(sf, project):
         yecho(f"正在回编译{dts_files}为{new_dtbo_files}")
         dtb_ = dtbodir + os.sep + "dts_files" + os.sep + dts_files
         call(
-            f'dtc -@ -I "dts" -O "dtb" {dtb_} -o {dtbodir + os.sep + "new_dtbo_files" + os.sep + new_dtbo_files}',
+            ['dtc', '-@', '-I', 'dts', '-O', 'dtb', dtb_, '-o', f"{dtbodir}/new_dtbo_files/{new_dtbo_files}"],
             out=1)
     yecho("正在生成dtbo.img...")
     list_ = []
@@ -1480,31 +1480,31 @@ def inpacker(name, project, form, ftype, json_=None):
     size = img_size0 / int(settings.BLOCKSIZE)
     size = int(size)
     if ftype == 'erofs':
-        other_ = '-E legacy-compress' if settings.erofs_old_kernel == '1' else ''
+        other_ = ['-E', 'legacy-compress'] if settings.erofs_old_kernel == '1' else []
         call(
-            f'mkfs.erofs {other_} -z{settings.erofslim}  -T {utc} --mount-point=/{name} --fs-config-file={fs_config} --product-out={os.path.dirname(out_img)} --file-contexts={file_contexts} {out_img} {in_files}')
+            ['mkfs.erofs', *other_, f'-z{settings.erofslim}', '-T', f'{utc}', f'--mount-point=/{name}', f'--fs-config-file={fs_config}', f'--product-out={os.path.dirname(out_img)}', f'--file-contexts={file_contexts}', out_img, in_files])
     elif ftype == 'f2fs':
         size_f2fs = (54 * 1024 * 1024) + img_size1
         size_f2fs = int(size_f2fs*1.15)+1
         with open(out_img, 'wb') as f:
             f.truncate(size_f2fs)
-        call(f'mkfs.f2fs {out_img} -O extra_attr -O inode_checksum -O sb_checksum -O compression -f')
-        call(f'sload.f2fs -f {in_files} -C {fs_config} -s {file_contexts} -t /{name} {out_img} -c')
+        call(['mkfs.f2fs', out_img, '-O', 'extra_attr', '-O', 'inode_checksum', '-O', 'sb_checksum', '-O', 'compression', '-f'])
+        call(['sload.f2fs', '-f', in_files, '-C', fs_config, '-s', file_contexts, '-t', f'/{name}', out_img, '-c'])
     else:
         if os.path.exists(file_contexts):
             if settings.pack_e2 == '0':
                 call(
-                    f'make_ext4fs -J -T {utc} -S {file_contexts} -l {img_size0} -C {fs_config} -L {name} -a {name} {out_img} {in_files}')
+                    ['make_ext4fs', '-J', '-T', f'{utc}', '-S', file_contexts, '-l', f'{img_size0}', '-C', fs_config, '-L', name, '-a', name, out_img, in_files])
             else:
                 call(
-                    f'mke2fs -O ^has_journal -L {name} -I 256 -M /{name} -m 0 -t ext4 -b {settings.BLOCKSIZE} {out_img} {size}')
+                    ['mke2fs', '-O', '^has_journal', '-L', name, '-I', '256', '-M', f'/{name}', '-m', '0', '-t', 'ext4', '-b', f'{settings.BLOCKSIZE}', out_img, f'{size}'])
                 call(
-                    f"e2fsdroid -e -T {utc} -S {file_contexts} -C {fs_config} -a /{name} -f {in_files} {out_img}")
+                    ['e2fsdroid', '-e', '-T', f'{utc}', '-S', file_contexts, '-C', fs_config, '-a', f'/{name}', '-f', in_files, out_img])
         else:
             call(
-                f'make_ext4fs -J -T {utc} -l {img_size0} -C {fs_config} -L {name} -a {name} {out_img} {in_files}')
+                ['make_ext4fs', '-J', '-T', f'{utc}', '-l', f'{img_size0}', '-C', fs_config, '-L', name, '-a', name, out_img, in_files])
     if settings.pack_sparse == '1' or form in ['dat', 'br']:
-        call(f"img2simg {out_img} {out_img}.s")
+        call(["img2simg", out_img, f"{out_img}.s"])
         os.remove(out_img)
         os.rename(out_img + ".s", out_img)
     if form in ['br', 'dat']:
@@ -1513,10 +1513,10 @@ def inpacker(name, project, form, ftype, json_=None):
         yecho(f"打包[DAT]:{name}")
         rdi(name)
         try:
-            os.remove(project + os.sep + "TI_out" + os.sep + name + ".patch.dat")
+            os.remove(project + "/TI_out/"  + name + ".patch.dat")
         except (Exception, BaseException):
             ...
-        utils.img2sdat(out_img, project + os.sep + "TI_out", int(json_.get('dat_ver', '4')), name)
+        utils.img2sdat(out_img, project + "/TI_out", int(json_.get('dat_ver', '4')), name)
         try:
             os.remove(out_img)
         except (Exception, BaseException):
@@ -1524,7 +1524,7 @@ def inpacker(name, project, form, ftype, json_=None):
     if form == 'br':
         yecho(f"打包[BR]:{name}")
         call(
-            f'brotli -q {settings.brcom} -j -w 24 {project + os.sep + "TI_out" + os.sep + name + ".new.dat"} -o {project + os.sep + "TI_out" + os.sep + name + ".new.dat.br"}')
+            ['brotli', '-q', f'{settings.brcom}', '-j', '-w', '24', f"{project}/TI_out/{name}.new.dat", '-o', f"{project}/TI_out/{name}.new.dat.br"])
 
 
 def versize(size):
