@@ -291,33 +291,33 @@ class setting:
         \033[33m  > Packing Settings \033[0m
            1> Brotli Level \033[93m[{settings.brcom}]\033[0m\n
            ----[EXT4 Settings]------
-           2> 大小处理 \033[93m[{settings.diysize}]\033[0m
-           3> 打包方式 \033[93m[{settings.pack_e2}]\033[0m\n
-           ----[EROFS设置]-----
-           4> 压缩方式 \033[93m[{settings.erofslim}]\033[0m\n
-           ----[IMG设置]-------
-           5> UTC时间戳 \033[93m[{settings.utcstamp}]\033[0m
-           6> 创建sparse \033[93m[{settings.pack_sparse}]\033[0m
-           7> 文件系统 \033[93m[{settings.diyimgtype}]\033[0m
-           8> 支持旧内核 \033[93m[{settings.erofs_old_kernel}]\033[0m\n
-           0>返回上一级菜单
+           2> Size Handle \033[93m[{settings.diysize}]\033[0m
+           3> Packing Method \033[93m[{settings.pack_e2}]\033[0m\n
+           ----[EROFS Settings]-----
+           4> Packing Format \033[93m[{settings.erofslim}]\033[0m\n
+           ----[IMG Settings]-------
+           5> UTC Timestamp \033[93m[{settings.utcstamp}]\033[0m
+           6> Pack to sparse \033[93m[{settings.pack_sparse}]\033[0m
+           7> File System \033[93m[{settings.diyimgtype}]\033[0m
+           8> Support old Kernel \033[93m[{settings.erofs_old_kernel}]\033[0m\n
+           0> Previous Menu
            --------------------------
         ''')
-        op_pro = input("   请输入编号:")
+        op_pro = input("   Please enter the number:")
         if op_pro == "0":
             return
         elif op_pro in actions.keys():
             actions[op_pro]()
         elif op_pro == '4':
-            if input("  选择erofs压缩方式[1]是 [2]否:") == '1':
+            if input("  Optional erofs compression method[1]Yes [2]No:") == '1':
                 erofslim = input(
-                    "  选择erofs压缩方式：lz4/lz4hc/lzma/和压缩等级[1-9](数字越大耗时更长体积更小) 例如 lz4hc,8:")
+                    "  Choose erofs compression method：lz4/lz4hc/lzma/and Level[1-9] such as lz4hc,8:")
                 settings.change("erofslim", erofslim if erofslim else 'lz4hc,8')
             else:
                 settings.change("erofslim", 'lz4hc,8')
         elif op_pro == '5':
-            if input("  设置打包UTC时间戳[1]自动 [2]自定义:") == "2":
-                utcstamp = input("  请输入: ")
+            if input("  Set packaging UTC timestamp [1] automatic [2] customization:") == "2":
+                utcstamp = input("  Enter: ")
                 settings.change('utcstamp', utcstamp if utcstamp.isdigit() else '1717840117')
             else:
                 settings.change('utcstamp', '')
@@ -329,35 +329,35 @@ class setting:
         cls()
         actions = {
             '1': lambda: settings.change('super_group', super_group if (
-                super_group := input(f"  请输入（无特殊字符）:")) else "qti_dynamic_partitions"),
+                super_group := input(f"  Enter:")) else "qti_dynamic_partitions"),
             '2': lambda: settings.change('metadatasize', metadatasize if (
-                metadatasize := input("  设置metadata最大保留size(默认为65536，至少512):")) else '65536'),
+                metadatasize := input("  Set the maximum reserved size for metadata (default to 65536, at least 512):")) else '65536'),
             '3': lambda: settings.change('BLOCKSIZE', BLOCKSIZE if (
-                BLOCKSIZE := input(f"  分区打包扇区/块大小：{settings.BLOCKSIZE}\n  请输入: ")) else "4096"),
+                BLOCKSIZE := input(f"  Partition packaging sector/block size:：{settings.BLOCKSIZE}\n  Enter: ")) else "4096"),
             '4': lambda: settings.change('BLOCKSIZE', SBLOCKSIZE if (
-                SBLOCKSIZE := input(f"  分区打包扇区/块大小：{settings.SBLOCKSIZE}\n  请输入: ")) else "4096"),
+                SBLOCKSIZE := input(f"  Partition packaging sector/block size:{settings.SBLOCKSIZE}\n  Enter: ")) else "4096"),
             '5': lambda: settings.change('supername', supername if (supername := input(
-                f'  当前动态分区物理分区名(默认super)：{settings.supername}\n  请输入（无特殊字符）: ')) else "super"),
-            '6': lambda: settings.change('fullsuper', '' if input("  是否强制创建Super镜像？[1/0]") != '1' else '-F'),
+                f'  Current dynamic partition physical partition name (default super):{settings.supername}\n  Enter: ')) else "super"),
+            '6': lambda: settings.change('fullsuper', '' if input("  Do you want to force the creation of Super images?[1/0]") != '1' else '-F'),
             '7': lambda: settings.change('autoslotsuffixing',
-                                         '' if input("  是否标记需要Slot后缀的分区？[1/0]") != '1' else '-x')
+                                         '' if input("  Mark partitions that require a Slot suffix?[1/0]") != '1' else '-x')
         }
         print(f'''
-        \033[33m  > 动态分区设置 \033[0m
-           1> Super簇名 \033[93m[{settings.super_group}]\033[0m\n
-           ----[Metadata设置]--
-           2> 最大保留Size \033[93m[{settings.metadatasize}]\033[0m\n
-           ----[分区设置]------
-           3> 默认扇区/块大小 \033[93m[{settings.BLOCKSIZE}]\033[0m\n
-           ----[Super设置]-----
-           4> 指定block大小 \033[93m[{settings.SBLOCKSIZE}]\033[0m
-           5> 更改物理分区名 \033[93m[{settings.supername}]\033[0m
-           6> 强制生成完整Img \033[93m[{settings.fullsuper}]\033[0m
-           7> 标记分区槽后缀 \033[93m[{settings.autoslotsuffixing}]\033[0m\n
-           0>返回上一级菜单
+        \033[33m  > Dynamic partition settings \033[0m
+           1> Super group name \033[93m[{settings.super_group}]\033[0m\n
+           ----[Metadata settings]--
+           2> Maximum reserved size \033[93m[{settings.metadatasize}]\033[0m\n
+           ----[Partition settings]------
+           3> Default sector/block size for partition settings \033[93m[{settings.BLOCKSIZE}]\033[0m\n
+           ----[Super settings]-----
+           4> Specify block size \033[93m[{settings.SBLOCKSIZE}]\033[0m
+           5> Change physical partition name \033[93m[{settings.supername}]\033[0m
+           6> Force complete generation Img \033[93m[{settings.fullsuper}]\033[0m
+           7> Mark partition slot suffix \033[93m[{settings.autoslotsuffixing}]\033[0m\n
+           0>Previous Menu
            --------------------------
         ''')
-        op_pro = input("   请输入编号: ")
+        op_pro = input("  Please enter the number: ")
         if op_pro == "0":
             return
         elif op_pro in actions.keys():
