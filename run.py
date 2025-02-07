@@ -12,6 +12,9 @@ from argparse import Namespace
 from configparser import ConfigParser
 from io import BytesIO
 from os import path as o_path
+
+from src import languages
+
 from src import banner
 from src import ext4
 from src.Magisk import Magisk_patch
@@ -151,15 +154,32 @@ try:
 except (Exception, BaseException):
     ...
 
-
+sys_stdout_write_ = sys.stdout.write
 class set_utils:
     def __init__(self, path):
         self.path = path
+        self.language_dict = {}
 
     def load_set(self):
         with open(self.path, 'r') as ss:
             data = json.load(ss)
             [setattr(self, v, data[v]) for v in data]
+        self.language_dict = getattr(languages, settings.language)
+        print("Building Language Map.")
+        def sys_stdout_write(s:str):
+            front = ''
+            end = ''
+            if s.startswith('\x1b[') and s.endswith('\033[0m'):
+                front = s[:5]
+                end = s[-4:]
+                s = s[5:-4]
+            s_t = s.strip()
+            if s_t in self.language_dict.keys():
+                s = s.replace(s_t, self.language_dict.get(s_t, s_t))
+            s = self.language_dict.get(s, s)
+            sys_stdout_write_(front + s + end)
+
+        sys.stdout.write = sys_stdout_write
 
     def change(self, name, value):
         with open(self.path, 'r') as ss:
@@ -347,7 +367,8 @@ class setting:
        1>自定义首页banner \033[93m[{settings.banner}]\033[0m\n
        2>联网模式 \033[93m[{settings.online}]\033[0m\n
        3>Contexts修补 \033[93m[{settings.context}]\033[0m\n
-       4>检查更新 \n
+       4>工具语言 \033[93m[{settings.language}]\033[0m\n
+       5>检查更新 \n
        0>返回上级\n
        --------------------------
             ''')
@@ -365,6 +386,13 @@ class setting:
         elif op_pro == '3':
             settings.change('context', 'false' if settings.context == 'true' else 'true')
         elif op_pro == '4':
+            language_list = {index:lan for index, lan in enumerate(dir(languages)) if lan != 'default' and not lan.startswith("_") and not lan.endswith('_')}
+            print("选择您的语言：")
+            for index, lan in language_list.items():
+                print(f'{index}>{lan}')
+            language = language_list.get(int(input("选择您的语言：")), languages.default)
+            settings.change('language', language)
+        elif op_pro == '5':
             upgrade()
         self.settings3()
 
