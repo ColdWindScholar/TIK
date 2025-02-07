@@ -1592,34 +1592,43 @@ def packsuper(project):
     insuper(project + os.sep + 'super', project + os.sep + 'TI_out' + os.sep + "super.img", supersize, supertype,
             ifsparse, isreadonly)
 
-
+# Fixme:Rewrite it.
 def insuper(Imgdir, outputimg, ssize, stype, sparsev, isreadonly):
     attr = "readonly" if isreadonly == '1' else "none"
     group_size_a = 0
+    supera_parts = []
     group_size_b = 0
     for root, dirs, files in os.walk(Imgdir):
         for file in files:
             file_path = os.path.join(root, file)
             if os.path.isfile(file_path) and os.path.getsize(file_path) == 0:
                 os.remove(file_path)
-    superpa = f"--metadata-size {settings.metadatasize} --super-name {settings.supername} "
+    superpa = ['lpmake','--metadata-size', f'{settings.metadatasize}', '--super-name', f'{settings.supername}']
     if sparsev == '1':
-        superpa += "--sparse "
+        superpa.append('--sparse')
     if stype == 'VAB':
-        superpa += "--virtual-ab "
-    superpa += f"-block-size={settings.SBLOCKSIZE} "
+        superpa.append("--virtual-ab")
+    superpa.append(f"-block-size={settings.SBLOCKSIZE}")
     for imag in os.listdir(Imgdir):
         if imag.endswith('.img'):
             image = imag.replace("_a.img", "").replace("_b.img", "").replace(".img", "")
-            if f'partition {image}:{attr}' not in superpa and f'partition {image}_a:{attr}' not in superpa:
+            if image not in supera_parts and f'{image}_a' not in supera_parts:
                 if stype in ['VAB', 'AB']:
                     if os.path.isfile(Imgdir + os.sep + image + "_a.img") and os.path.isfile(
                             Imgdir + os.sep + image + "_b.img"):
                         img_sizea = os.path.getsize(Imgdir + os.sep + image + "_a.img")
                         img_sizeb = os.path.getsize(Imgdir + os.sep + image + "_b.img")
+                        supera_parts.append(f"{image}_a")
                         group_size_a += img_sizea
                         group_size_b += img_sizeb
-                        superpa += f"--partition {image}_a:{attr}:{img_sizea}:{settings.super_group}_a --image {image}_a={Imgdir}{os.sep}{image}_a.img --partition {image}_b:{attr}:{img_sizeb}:{settings.super_group}_b --image {image}_b={Imgdir}{os.sep}{image}_b.img "
+                        superpa.append('--partition')
+                        superpa.append(f'{image}_a:{attr}:{img_sizea}:{settings.super_group}_a')
+                        superpa.append("--image")
+                        superpa.append(f"{image}_a={Imgdir}/{image}_a.img")
+                        superpa.append('--partition')
+                        superpa.append(f"{image}_b:{attr}:{img_sizeb}:{settings.super_group}_b")
+                        superpa.append("--image")
+                        superpa.append(f"{image}_b={Imgdir}/{image}_b.img")
                     else:
                         if not os.path.exists(Imgdir + os.sep + image + ".img") and os.path.exists(
                                 Imgdir + os.sep + image + "_a.img"):
@@ -1628,29 +1637,47 @@ def insuper(Imgdir, outputimg, ssize, stype, sparsev, isreadonly):
                         img_size = os.path.getsize(Imgdir + os.sep + image + ".img")
                         group_size_a += img_size
                         group_size_b += img_size
-                        superpa += f"--partition {image}_a:{attr}:{img_size}:{settings.super_group}_a --image {image}_a={Imgdir}{os.sep}{image}.img --partition {image}_b:{attr}:0:{settings.super_group}_b "
+                        superpa.append('--partition')
+                        superpa.append(f'{image}_a:{attr}:{img_size}:{settings.super_group}_a')
+                        superpa.append(f'--image')
+                        superpa.append(f'{image}_a={Imgdir}/{image}.img')
+                        superpa.append(f'--partition')
+                        superpa.append(f"{image}_b:{attr}:0:{settings.super_group}_b")
+                        supera_parts.append(f"{image}_a")
                 else:
                     if not os.path.exists(Imgdir + os.sep + image + ".img") and os.path.exists(
                             Imgdir + os.sep + image + "_a.img"):
                         os.rename(Imgdir + os.sep + image + "_a.img", Imgdir + os.sep + image + ".img")
 
                     img_size = os.path.getsize(Imgdir + os.sep + image + ".img")
-                    superpa += f"--partition {image}:{attr}:{img_size}:{settings.super_group} --image {image}={Imgdir}{os.sep}{image}.img "
+                    superpa.append('--partition')
+                    superpa.append(f'{image}:{attr}:{img_size}:{settings.super_group}')
+                    superpa.append("--image")
+                    superpa.append(f'{image}={Imgdir}{os.sep}{image}.img')
                     group_size_a += img_size
+                    supera_parts.append(image)
                 print(f"已添加分区:{image}")
     supersize = ssize
     if not supersize:
         supersize = group_size_a + 4096000
-    superpa += f"--device super:{supersize} "
+    superpa.append('--device')
+    superpa.append(f"super:{supersize}")
+    superpa.append("--metadata-slots")
     if stype in ['VAB', 'AB']:
-        superpa += "--metadata-slots 3 "
-        superpa += f" --group {settings.super_group}_a:{supersize} "
-        superpa += f" --group {settings.super_group}_b:{supersize} "
+        superpa.append('3')
+        superpa.append("--group")
+        superpa.append(f'{settings.super_group}_a:{supersize}')
+        superpa.append("--group")
+        superpa.append(f"{settings.super_group}_b:{supersize}")
     else:
-        superpa += "--metadata-slots 2 "
-        superpa += f" --group {settings.super_group}:{supersize} "
-    superpa += f"{settings.fullsuper} {settings.autoslotsuffixing} --output {outputimg}"
-    ywarn("创建super.img失败！") if call(f'lpmake {superpa}') != 0 else ysuc("成功创建super.img!")
+        superpa.append('2')
+        superpa.append("--group")
+        superpa.append(f"{settings.super_group}:{supersize}")
+    superpa.append(f"{settings.fullsuper}")
+    superpa.append(f"{settings.autoslotsuffixing}")
+    superpa.append("--output")
+    superpa.append(outputimg)
+    ywarn("创建super.img失败！") if call(superpa) != 0 else ysuc("成功创建super.img!")
 
 
 def packpayload(project):
@@ -1658,20 +1685,20 @@ def packpayload(project):
         print(f"不支持当前系统:{ostype},目前只支持:Linux(aarch64&x86)")
         input("任意按钮继续")
         return
-    if os.path.exists(project + os.sep + 'payload'):
+    if os.path.exists(project +'/payload'):
         if input('发现之前打包Payload残留，清空吗[1/0]') == '1':
-            re_folder(project + os.sep + 'payload')
-            re_folder(project + os.sep + 'TI_out' + os.sep + "payload")
-            f_remove(project + os.sep + 'TI_out' + os.sep + "payload" + os.sep + 'dynamic_partitions_info.txt')
+            re_folder(project + '/payload')
+            re_folder(project + '/TI_out/' +  "payload")
+            f_remove(f"{project}/TI_out/payload/dynamic_partitions_info.txt")
     else:
-        os.makedirs(project + os.sep + 'payload')
-    ywarn(f"请将所有分区镜像放置于{project + os.sep}payload中！")
+        os.makedirs(project + '/payload')
+    ywarn(f"请将所有分区镜像放置于{project}payload中！")
     yecho("这项功能很耗时、很费CPU、很费内存，若无官方签名则意义不大，请考虑后使用")
-    if not os.listdir(project + os.sep + 'payload'):
+    if not os.listdir(project +  '/payload'):
         print("您似乎没有要打包的分区，要移动下列分区打包吗：")
         move_list = []
-        for i in os.listdir(project + os.sep + 'TI_out'):
-            if os.path.isfile(os.path.join(project + os.sep + 'TI_out', i)):
+        for i in os.listdir(project +  '/TI_out'):
+            if os.path.isfile(os.path.join(project +  '/TI_out', i)):
                 if i.endswith('.img'):
                     move_list.append(i)
         print("\n".join(move_list))
@@ -1680,7 +1707,7 @@ def packpayload(project):
                 shutil.move(os.path.join(project + os.sep + 'TI_out', i), os.path.join(project + os.sep + 'payload', i))
     tool_auto_size = sum(
         [os.path.getsize(os.path.join(project + os.sep + 'payload', p)) for p in
-         os.listdir(project + os.sep + 'payload') if
+         os.listdir(project + '/payload') if
          os.path.isfile(os.path.join(project + os.sep + 'payload', p))]) + 409600
     tool_auto_size = versize(tool_auto_size)
     checkssize = input(f"请设置构建Super.img大小:[1]9126805504 [2]10200547328 [3]工具推荐：{tool_auto_size} [5]自定义")
@@ -1722,7 +1749,7 @@ def inpayload(supersize, project):
         input("错误 ，未写入文件")
     else:
         LOGS("成功创建payload!") if call(
-            f"delta_generator --in_file={out} --properties_file={project + os.sep + 'config' + os.sep}payload_properties.txt") == 0 else LOGE(
+            ['delta_generator', f'--in_file={out}', f'--properties_file={project}/config/payload_properties.txt']) == 0 else LOGE(
             "创建payload失败！")
 
 
@@ -1740,7 +1767,7 @@ def unpack(file, info, project):
     elif info == 'dtbo':
         undtbo(project, os.path.abspath(file))
     elif info == 'br':
-        call(f'brotli -dj {file}')
+        call(['brotli', '-dj', file])
         partname = str(os.path.basename(file).replace('.new.dat.br', ''))
         filepath = str(os.path.dirname(file))
         unpack(os.path.join(filepath, partname + ".new.dat"), 'dat', project)
@@ -1849,9 +1876,9 @@ def unpack(file, info, project):
                        os.path.join(filepath, partname + ".new.dat"), os.path.join(filepath, partname + ".img"))
         unpack(os.path.join(filepath, partname + ".img"), gettype(os.path.join(filepath, partname + ".img")), project)
     elif info == 'erofs':
-        call(f'extract.erofs -i {os.path.abspath(file)} -o {project} -x')
+        call(['extract.erofs', '-i', f'{os.path.abspath(file)}', '-o', project, '-x'])
     elif info == 'f2fs' and os.name == 'posix':
-        call(f'extract.f2fs -o {project} {os.path.abspath(file)}')
+        call(['extract.f2fs', '-o', project, f'{os.path.abspath(file)}'])
     elif info == 'super':
         lpunpack.unpack(os.path.abspath(file), project)
         for v in os.listdir(project):
