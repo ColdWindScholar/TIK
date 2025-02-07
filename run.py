@@ -1502,7 +1502,7 @@ def inpacker(name, project, form, ftype, json_=None):
         project + os.sep + "config" + os.sep + name + "_size.txt") else 0
     img_size1 = dirsize(in_files, 1, 1).rsize_v
     if settings.diysize == '' and img_size0 < img_size1:
-        ywarn("您设置的size过小,将动态调整size!")
+        ywarn("The size you set is too small, the size will be dynamically adjusted!")
         img_size0 = dirsize(in_files, 1, 3, project + os.sep + "dynamic_partitions_op_list").rsize_v
     elif settings.diysize == '':
         img_size0 = dirsize(in_files, 1, 3, project + os.sep + "dynamic_partitions_op_list").rsize_v
@@ -1545,7 +1545,7 @@ def inpacker(name, project, form, ftype, json_=None):
     if form in ['br', 'dat']:
         rdi(name)
     if form in ['dat', 'br']:
-        yecho(f"打包[DAT]:{name}")
+        yecho(f"Packing [DAT]:{name}")
         rdi(name)
         try:
             os.remove(project + "/TI_out/"  + name + ".patch.dat")
@@ -1557,7 +1557,7 @@ def inpacker(name, project, form, ftype, json_=None):
         except (Exception, BaseException):
             ...
     if form == 'br':
-        yecho(f"打包[BR]:{name}")
+        yecho(f"Packing [BR]:{name}")
         call(
             ['brotli', '-q', f'{settings.brcom}', '-j', '-w', '24', f"{project}/TI_out/{name}.new.dat", '-o', f"{project}/TI_out/{name}.new.dat.br"])
 
@@ -1584,18 +1584,18 @@ def packsuper(project):
     if not os.path.exists(project + os.sep + "super"):
         os.makedirs(project + os.sep + "super")
     cls()
-    ywarn(f"请将需要打包的分区镜像放置于{project}{os.sep}super中！")
-    supertype = input("请输入Super类型：[1]A_only [2]AB [3]V-AB-->")
+    ywarn(f"Please place the partition images that need to be packaged on the {project}{os.sep}super！")
+    supertype = input("Please Enter Super Type:[1]A_only [2]AB [3]V-AB-->")
     if supertype == '3':
         supertype = 'VAB'
     elif supertype == '2':
         supertype = 'AB'
     else:
         supertype = 'A_only'
-    isreadonly = input("是否设置为只读分区？[1/0]")
-    ifsparse = input("是否打包为sparse镜像？[1/0]")
+    isreadonly = input("Whether Set Attrib to Readonly?[1/0]")
+    ifsparse = input("Whether to package as sparse image？[1/0]")
     if not os.listdir(project + os.sep + 'super'):
-        print("您似乎没有要打包的分区，要移动下列分区打包吗：")
+        print("It seems that you do not have any partitions to package. \nDo you want to move the following partitions for packaging：")
         move_list = []
         for i in os.listdir(project + os.sep + 'TI_out'):
             if os.path.isfile(os.path.join(project + os.sep + 'TI_out', i)):
@@ -1604,7 +1604,7 @@ def packsuper(project):
                         continue
                     move_list.append(i)
         print("\n".join(move_list))
-        if input('确定操作吗[Y/N]') in ['Y', 'y', '1']:
+        if input('Whether to execute ?[Y/N]') in ['Y', 'y', '1']:
             for i in move_list:
                 shutil.move(os.path.join(project + os.sep + 'TI_out', i), os.path.join(project + os.sep + 'super', i))
     tool_auto_size = sum(
@@ -1612,7 +1612,7 @@ def packsuper(project):
          os.path.isfile(os.path.join(project + os.sep + 'super', p))]) + 409600
     tool_auto_size = versize(tool_auto_size)
     checkssize = input(
-        f"请设置Super.img大小:[1]9126805504 [2]10200547328 [3]16106127360 [4]工具推荐：{tool_auto_size} [5]自定义")
+        f"Choose Super.img Size:[1]9126805504 [2]10200547328 [3]16106127360 [4]{tool_auto_size} [5]自定义")
     if checkssize == '1':
         supersize = 9126805504
     elif checkssize == '2':
@@ -1622,8 +1622,8 @@ def packsuper(project):
     elif checkssize == '4':
         supersize = tool_auto_size
     else:
-        supersize = input("请输入super分区大小（字节数）:")
-    yecho("打包到TI_out/super.img...")
+        supersize = input("Enter super Size（Byte）:")
+    yecho("Pack to TI_out/super.img...")
     insuper(project + os.sep + 'super', project + os.sep + 'TI_out' + os.sep + "super.img", supersize, supertype,
             ifsparse, isreadonly)
 
@@ -1691,7 +1691,7 @@ def insuper(Imgdir, outputimg, ssize, stype, sparsev, isreadonly):
                     superpa.append(f'{image}={Imgdir}{os.sep}{image}.img')
                     group_size_a += img_size
                     supera_parts.append(image)
-                print(f"已添加分区:{image}")
+                print(f"Added Partition:{image}")
     supersize = ssize
     if not supersize:
         supersize = group_size_a + 4096000
@@ -1712,32 +1712,32 @@ def insuper(Imgdir, outputimg, ssize, stype, sparsev, isreadonly):
     superpa.append(f"{settings.autoslotsuffixing}")
     superpa.append("--output")
     superpa.append(outputimg)
-    ywarn("创建super.img失败！") if call(superpa) != 0 else ysuc("成功创建super.img!")
+    ywarn("Create super.img Fail！") if call(superpa) != 0 else ysuc("Create super.img Successful!")
 
 
 def packpayload(project):
     if ostype != 'Linux':
-        print(f"不支持当前系统:{ostype},目前只支持:Linux(aarch64&x86)")
-        input("任意按钮继续")
+        print(f"Unsupported:{ostype},Only Support:Linux(aarch64&x86)")
+        input("Enter to continue")
         return
     if os.path.exists(project +'/payload'):
-        if input('发现之前打包Payload残留，清空吗[1/0]') == '1':
+        if input('Discovered residual Payload from previous packaging, empty it?[1/0]') == '1':
             re_folder(project + '/payload')
             re_folder(project + '/TI_out/' +  "payload")
             f_remove(f"{project}/TI_out/payload/dynamic_partitions_info.txt")
     else:
         os.makedirs(project + '/payload')
-    ywarn(f"请将所有分区镜像放置于{project}payload中！")
+    ywarn(f"Please place all partition images on {project}payload！")
     yecho("这项功能很耗时、很费CPU、很费内存，若无官方签名则意义不大，请考虑后使用")
     if not os.listdir(project +  '/payload'):
-        print("您似乎没有要打包的分区，要移动下列分区打包吗：")
+        print("It seems that you do not have any partitions to package. Do you want to move the following partitions for packaging：")
         move_list = []
         for i in os.listdir(project +  '/TI_out'):
             if os.path.isfile(os.path.join(project +  '/TI_out', i)):
                 if i.endswith('.img'):
                     move_list.append(i)
         print("\n".join(move_list))
-        if input('确定操作吗[Y/N]') in ['Y', 'y', '1']:
+        if input('Whether to execute ?[Y/N]') in ['Y', 'y', '1']:
             for i in move_list:
                 shutil.move(os.path.join(project + os.sep + 'TI_out', i), os.path.join(project + os.sep + 'payload', i))
     tool_auto_size = sum(
@@ -1745,7 +1745,7 @@ def packpayload(project):
          os.listdir(project + '/payload') if
          os.path.isfile(os.path.join(project + os.sep + 'payload', p))]) + 409600
     tool_auto_size = versize(tool_auto_size)
-    checkssize = input(f"请设置构建Super.img大小:[1]9126805504 [2]10200547328 [3]工具推荐：{tool_auto_size} [5]自定义")
+    checkssize = input(f"Choose Super.img Size:[1]9126805504 [2]10200547328 [3]{tool_auto_size} [5]自定义")
     if checkssize == '1':
         supersize = 9126805504
     elif checkssize == '2':
@@ -1753,13 +1753,13 @@ def packpayload(project):
     elif checkssize == '3':
         supersize = tool_auto_size
     else:
-        supersize = input("请输入super分区大小（字节数）： ")
-    yecho(f"打包到{project}/TI_out/payload...")
+        supersize = input("Enter super Size（Byte）: ")
+    yecho(f"Pack to {project}/TI_out/payload...")
     inpayload(supersize, project)
 
 
 def inpayload(supersize, project):
-    yecho("将打包至：TI_out/payload，payload.bin & payload_properties.txt")
+    yecho("Pack to：TI_out/payload，payload.bin & payload_properties.txt")
     partname = []
     super_list = []
     pimages = []
@@ -1770,9 +1770,9 @@ def inpayload(supersize, project):
             if gettype(project + os.sep + 'payload' + os.sep + sf) in ['ext', 'erofs']:
                 super_list.append(sf.replace('.img', ''))
             pimages.append(f"{project}/payload/{sf}")
-            yecho(f"预打包:{sf}")
+            yecho(f"Added Partition:{sf}")
     inparts = f"--partition_names={':'.join(partname)} --new_partitions={':'.join(pimages)}"
-    yecho(f"当前Super逻辑分区表：{super_list}")
+    yecho(f"Current Super logical partition table：{super_list}")
     with open(project + os.sep + "payload" + os.sep + "parts_info.txt", 'w', encoding='utf-8',
               newline='\n') as txt:
         txt.write(f"super_partition_groups={settings.super_group}\n")
@@ -1781,11 +1781,11 @@ def inpayload(supersize, project):
     os.system(
         f"{ebinner}delta_generator --out_file={out} {inparts} --dynamic_partition_info_file={os.path.join(project, 'payload', 'parts_info.txt')}")
     if not os.path.exists(out):
-        input("错误 ，未写入文件")
+        input("NOT Create Payload.")
     else:
-        LOGS("成功创建payload!") if call(
+        LOGS("Done!") if call(
             ['delta_generator', f'--in_file={out}', f'--properties_file={project}/config/payload_properties.txt']) == 0 else LOGE(
-            "创建payload失败！")
+            "Fail！")
 
 
 def unpack(file, info, project):
@@ -1795,7 +1795,7 @@ def unpack(file, info, project):
     parts = json_.read()
     if not os.path.exists(project + os.sep + 'config'):
         os.makedirs(project + os.sep + 'config')
-    yecho(f"[{info}]解包{os.path.basename(file)}中...")
+    yecho(f"[{info}]Unpacking {os.path.basename(file)}...")
     if info == 'sparse':
         simg2img(os.path.join(project, file))
         unpack(file, gettype(file), project)
@@ -1826,7 +1826,7 @@ def unpack(file, info, project):
         parts[os.path.basename(file).split('.')[0]] = gettype(file)
         unpack(file, gettype(file), project)
     elif info == 'ofp':
-        ofpm = input(" ROM机型处理器为？[1]高通 [2]MTK	")
+        ofpm = input(" What is the ROM model processor? [1] Qualcomm [2] MTK	")
         if ofpm == '1':
             ofp_qc_decrypt.main(file, project)
         elif ofpm == '2':
@@ -1836,7 +1836,7 @@ def unpack(file, info, project):
         try:
             os.remove(file)
         except Exception as e:
-            print(f"错误！{e}")
+            print(f"Error！{e}")
         zipfile.ZipFile(file.replace('.ozip', '.zip')).extractall(project)
     elif info == 'ops':
         args = {"decrypt": True,
@@ -1844,10 +1844,10 @@ def unpack(file, info, project):
                 'outdir': os.path.join(project, os.path.dirname(file).split('.')[0])}
         opscrypto.main(args)
     elif info == 'payload':
-        yecho(f"{os.path.basename(file)}所含分区列表：")
+        yecho(f"{os.path.basename(file)}List of partitions included：")
         with open(file, 'rb') as pay:
             print(f'{(parts_ := [i.partition_name for i in utils.payload_reader(pay).partitions])}')
-        extp = input("请输入需要解压的分区名(空格隔开)/all[全部]	")
+        extp = input("Please Enter Partition names need to be decompressed (separated by spaces)/all")
         if extp == 'all':
             Dumper(
                 file,
@@ -1870,7 +1870,7 @@ def unpack(file, info, project):
                 for fd1 in sorted(
                         [f for f in os.listdir(project) if f.startswith(os.path.basename(fd).rsplit('.', 1)[0] + ".")],
                         key=lambda x: int(x.rsplit('.')[3])):
-                    print("合并%s到%s" % (fd1, os.path.basename(fd).rsplit('.', 1)[0]))
+                    print("Merge %s to %s" % (fd1, os.path.basename(fd).rsplit('.', 1)[0]))
                     with open(project + os.sep + fd1, 'rb') as nfd:
                         ofd.write(nfd.read())
                     os.remove(project + os.sep + fd1)
@@ -1889,7 +1889,7 @@ def unpack(file, info, project):
                 mount = mount[len(mount) - 1]
             if mount and os.path.basename(file).split('.')[0] != 'mi_ext':
                 parts[mount] = 'ext'
-        with Console().status(f"[yellow]正在提取{os.path.basename(file)}[/]"):
+        with Console().status(f"[yellow]Extracting {os.path.basename(file)}[/]"):
             imgextractor.Extractor().main(file, project + os.sep + os.path.basename(file).split('.')[0], project)
         try:
             os.remove(file)
@@ -1931,19 +1931,19 @@ def unpack(file, info, project):
     elif info in ['boot', 'vendor_boot']:
         unpackboot(os.path.abspath(file), project)
     else:
-        ywarn("未知格式！")
+        ywarn("unknown format！")
     json_.write(parts)
 
 
 def autounpack(project):
-    yecho("自动解包开始！")
+    yecho("Automatic unpacking start！")
     os.chdir(project)
     if os.path.exists(project + os.sep + "payload.bin"):
-        yecho('解包 payload.bin...')
+        yecho('Unpack payload.bin...')
         unpack(project + os.sep + 'payload.bin', 'payload', project)
-        yecho("解包完成！")
+        yecho("Done!")
         wastes = ['care_map.pb', 'apex_info.pb']
-        if input("你要删除payload吗[1/0]") == '1':
+        if input("Do you want to delete the payload[1/0]") == '1':
             wastes.append('payload.bin')
         for waste in wastes:
             if os.path.exists(project + os.sep + waste):
@@ -1956,7 +1956,7 @@ def autounpack(project):
         shutil.move(project + os.sep + "payload_properties.txt", project + os.sep + "config")
         shutil.move(project + os.sep + "META-INF" + os.sep + "com" + os.sep + "android" + os.sep + "metadata",
                     project + os.sep + "config")
-    ask_ = input("解包所有文件？[1/0]")
+    ask_ = input("Whether or not unpack all files?[1/0]")
     for infile in os.listdir(project):
         os.chdir(project)
         if os.path.isdir(os.path.abspath(infile)):
@@ -1968,7 +1968,7 @@ def autounpack(project):
         elif os.path.abspath(infile).endswith('.list') or os.path.abspath(infile).endswith('.patch.dat'):
             continue
         if ask_ != '1':
-            if not input(f"要分解{infile}吗 [1/0]") == '1':
+            if not input(f"Unpack {infile}? [1/0]") == '1':
                 continue
         if infile.endswith('.new.dat.br'):
             unpack(os.path.abspath(infile), 'br', project)
