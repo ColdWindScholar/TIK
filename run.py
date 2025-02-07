@@ -19,9 +19,8 @@ from src import banner
 from src import ext4
 from src.Magisk import Magisk_patch
 import os
-
 from src.dumper import Dumper
-
+import builtins
 if os.name == 'nt':
     import ctypes
 
@@ -155,6 +154,7 @@ except (Exception, BaseException):
     ...
 
 sys_stdout_write_ = sys.stdout.write
+input_old = builtins.input
 class set_utils:
     def __init__(self, path):
         self.path = path
@@ -175,6 +175,17 @@ class set_utils:
                         s = s.replace(i, self.language_dict.get(i, i))
 
             sys_stdout_write_(s)
+        def new_input(prompt: object = ''):
+            t = self.language_dict.get(prompt, prompt)
+            if prompt != t:
+                prompt = t
+            else:
+                for i in self.language_dict:
+                    if i in prompt:
+                        prompt = prompt.replace(i, self.language_dict.get(i, i))
+            return input_old(prompt)
+
+        builtins.input = new_input
         sys.stdout.write = sys_stdout_write
 
     def change(self, name, value):
