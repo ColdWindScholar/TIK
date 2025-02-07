@@ -46,31 +46,40 @@ ostype = plat.system()
 binner = elocal + os.sep + "bin"
 ebinner = binner + os.sep + ostype + os.sep + platform + os.sep
 
-
-def call(exe, kz='Y', out=0, shstate=False, sp=0):
-    cmd = f'{ebinner}{exe}' if kz == "Y" else exe
-    if os.name != 'posix':
-        conf = subprocess.CREATE_NO_WINDOW
+def call(exe, extra_path=True, out=0):
+    if isinstance(exe, list):
+        cmd = exe
+        if extra_path:
+            cmd[0] = f"{ebinner}{exe[0]}"
+        cmd = [i for i in cmd if i]
     else:
-        if sp == 0:
+        cmd = f'{ebinner}{exe}' if extra_path else exe
+        if os.name == 'posix':
             cmd = cmd.split()
-        conf = 0
+    conf = subprocess.CREATE_NO_WINDOW if os.name != 'posix' else 0
     try:
-        ret = subprocess.Popen(cmd, shell=shstate, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+        ret = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                stderr=subprocess.STDOUT, creationflags=conf)
         for i in iter(ret.stdout.readline, b""):
             if out == 0:
-                print(i.decode("utf-8", "ignore").strip())
+                try:
+                    out_put = i.decode("utf-8").strip()
+                except (Exception, BaseException):
+                    out_put = i.decode("gbk").strip()
+                print(out_put)
     except subprocess.CalledProcessError as e:
-        ret = None
-        ret.wait = print
-        ret.returncode = 1
         for i in iter(e.stdout.readline, b""):
             if out == 0:
-                print(i.decode("utf-8", "ignore").strip())
+                try:
+                    out_put = i.decode("utf-8").strip()
+                except (Exception, BaseException):
+                    out_put = i.decode("gbk").strip()
+                print(out_put)
+        return 2
+    except FileNotFoundError:
+        return 2
     ret.wait()
     return ret.returncode
-
 
 dn = None
 formats = ([b'PK', "zip"], [b'OPPOENCRYPT!', "ozip"], [b'7z', "7z"], [b'\x53\xef', 'ext', 1080],

@@ -88,11 +88,10 @@ def rmdire(path):
             for r, d, f in os.walk(path):
                 for i in d:
                     if i.endswith('.'):
-                        call('mv {} {}'.format(os.path.join(r, i), os.path.join(r, i[:1])))
+                        call(['mv', str(os.path.join(r, i)), str(os.path.join(r, i[:1]))])
                 for i in f:
                     if i.endswith('.'):
-                        call('mv {} {}'.format(os.path.join(r, i), os.path.join(r, i[:1])))
-
+                        call(['mv', os.path.join(r, i), os.path.join(r, i[:1])])
         try:
             shutil.rmtree(path)
         except PermissionError:
@@ -1284,14 +1283,13 @@ def dboot(infile, orig):
         cpio = utils.findfile("cpio.exe" if os.name != 'posix' else 'cpio',
                               ebinner).replace(
             '\\', "/")
-        call(exe="busybox ash -c \"find | sed 1d | %s -H newc -R 0:0 -o -F ../ramdisk-new.cpio\"" % cpio, sp=1,
-             shstate=True)
+        call(['busybox', 'ash', '-c', f'find | sed 1d | {cpio} -H newc -R 0:0 -o -F ../ramdisk-new.cpio'])
         os.chdir(infile)
         with open("comp", "r", encoding='utf-8') as compf:
             comp = compf.read()
         print("Compressing:%s" % comp)
         if comp != "unknow":
-            if call("magiskboot compress=%s ramdisk-new.cpio" % comp) != 0:
+            if call(["magiskboot", f"compress={comp}", "ramdisk-new.cpio"]) != 0:
                 print("Pack Ramdisk Fail...")
                 os.remove("ramdisk-new.cpio")
                 return
@@ -1310,7 +1308,7 @@ def dboot(infile, orig):
             flag = "-n"
     else:
         os.chdir(infile)
-    if call("magiskboot repack %s %s" % (flag, orig)) != 0:
+    if call(["magiskboot", "repack", flag, orig]) != 0:
         print("Pack boot Fail...")
         return
     else:
@@ -1329,7 +1327,7 @@ def unpackboot(file, project):
     rmdire(project + os.sep + name)
     os.makedirs(project + os.sep + name)
     os.chdir(project + os.sep + name)
-    if call("magiskboot unpack -h %s" % file) != 0:
+    if call(["magiskboot", "unpack", "-h", file]) != 0:
         print("Unpack %s Fail..." % file)
         os.chdir(LOCALDIR)
         shutil.rmtree(project + os.sep + name)
@@ -1342,16 +1340,14 @@ def unpackboot(file, project):
         if comp != "unknow":
             os.rename(project + os.sep + name + os.sep + "ramdisk.cpio",
                       project + os.sep + name + os.sep + "ramdisk.cpio.comp")
-            if call("magiskboot decompress %s %s" % (
-                    project + os.sep + name + os.sep + "ramdisk.cpio.comp",
-                    project + os.sep + name + os.sep + "ramdisk.cpio")) != 0:
+            if call(["magiskboot", "decompress", f"{project}/{name}/ramdisk.cpio.comp", f"{project}/{name}/ramdisk.cpio"]) != 0:
                 print("Decompress Ramdisk Fail...")
                 return
         if not os.path.exists(project + os.sep + name + os.sep + "ramdisk"):
             os.mkdir(project + os.sep + name + os.sep + "ramdisk")
         os.chdir(project + os.sep + name + os.sep)
         print("Unpacking Ramdisk...")
-        call('cpio -i -d -F ramdisk.cpio -D ramdisk')
+        call(['cpio', '-i', '-d', '-F', 'ramdisk.cpio', '-D', 'ramdisk'])
         os.chdir(LOCALDIR)
     else:
         print("Unpack Done!")
@@ -1371,7 +1367,7 @@ def undtb(project, infile):
             dtb = os.path.join(dtbdir, 'dtb_files', name + ".dtb")
             dts = os.path.join(dtbdir, 'dtb_files', name + ".dts")
             call(
-                f'dtc -@ -I dtb -O dts {dtb} -o {dts}',
+                ['dtc', '-@', '-I', 'dtb', '-O', 'dts', str(dtb), '-o', str(dts)],
                 out=1)
     open(project + os.sep + os.sep + "config" + os.sep + "dtbinfo_" + os.path.basename(infile).split(".")[0],
          'w').close()
@@ -1386,8 +1382,8 @@ def makedtb(sf, project):
     for dts_files in os.listdir(dtbdir + os.sep + "dtb_files"):
         new_dtb_files = dts_files.split('.')[0]
         yecho(f"正在回编译{dts_files}为{new_dtb_files}.dtb")
-        dtb_ = dtbdir + os.sep + "dtb_files" + os.sep + dts_files
-        if call(f'dtc -@ -I "dts" -O "dtb" "{dtb_}" -o "{dtbdir + os.sep}new_dtb_files{os.sep}{new_dtb_files}.dtb"',
+        dtb_ = dtbdir + "/dtb_files/" + dts_files
+        if call(['dtc', '-@', '-I', 'dts', '-O', 'dtb', dtb_, '-o', f'{dtbdir}/new_dtb_files/{new_dtb_files}.dtb'],
                 out=1) != 0:
             ywarn("回编译dtb失败")
     with open(project + os.sep + "TI_out" + os.sep + sf, 'wb') as sff:
