@@ -17,10 +17,10 @@ from threading import Thread
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
 
-import blockimgdiff
-import sparse_img
-import update_metadata_pb2 as um
-from lpunpack import SparseImage
+from . import blockimgdiff
+from . import sparse_img
+from . import update_metadata_pb2 as um
+from .lpunpack import SparseImage
 
 
 def u64(x):

@@ -2,14 +2,14 @@ import os
 import re
 import struct
 
-import ext4
+from . import ext4
 
 if os.name == 'nt':
     from ctypes.wintypes import LPCSTR, DWORD
     from stat import FILE_ATTRIBUTE_SYSTEM
     from ctypes import windll
 from timeit import default_timer as dti
-from utils import simg2img
+from .utils import simg2img
 
 try:
     from pycase import ensure_dir_case_sensitive
