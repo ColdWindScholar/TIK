@@ -273,25 +273,24 @@ class upgrade:
 class setting:
     def settings1(self):
         actions = {
-            "1": lambda: settings.change('brcom', brcom if (brcom := input(
-                f"  调整brotli压缩等级(整数1-9，级别越高，压缩率越大，耗时越长):")).isdigit() and 0 < int(
+            "1": lambda: settings.change('brcom', brcom if (brcom := input("  Adjust the brotli compression level (integers 1-9):")).isdigit() and 0 < int(
                 brcom) < 10 else '1'),
             "2": lambda: settings.change('diysize',
-                                         "1" if input("  打包Ext镜像大小[1]动态最小 [2]原大小:") == '2' else ''),
+                                         "1" if input("  Package Ext image size: [1]Auto [2]Origin:") == '2' else ''),
             "3": lambda: settings.change('pack_e2', '0' if input(
-                "  打包方案: [1]make_ext4fs [2]mke2fs+e2fsdroid:") == '1' else '1'),
+                "  Packing Method: [1]make_ext4fs [2]mke2fs+e2fsdroid:") == '1' else '1'),
             "6": lambda: settings.change('pack_sparse', '1' if input(
-                "  Img是否打包为sparse镜像(压缩体积)[1/0]\n  请输入序号:") == '1' else "0"),
+                "  Pack to Sparse:[1/0]:") == '1' else "0"),
             "7": lambda: settings.change('diyimgtype',
-                                         '1' if input(f"  打包镜像系统[1]同解包格式 [2]可选择:") == '2' else ''),
+                                         '1' if input(f"  Packaging Image Format [1]Origin [2]Selectable:") == '2' else ''),
             "8": lambda: settings.change('erofs_old_kernel',
-                                         '1' if input(f"  EROFS打包是否支持旧内核[1/0]") == '1' else '0')
+                                         '1' if input(f"  EROFS Support old Kernel[1/0]") == '1' else '0')
         }
         cls()
         print(f'''
-        \033[33m  > 打包设置 \033[0m
-           1> Brotli 压缩等级 \033[93m[{settings.brcom}]\033[0m\n
-           ----[EXT4设置]------
+        \033[33m  > Packing Settings \033[0m
+           1> Brotli Level \033[93m[{settings.brcom}]\033[0m\n
+           ----[EXT4 Settings]------
            2> 大小处理 \033[93m[{settings.diysize}]\033[0m
            3> 打包方式 \033[93m[{settings.pack_e2}]\033[0m\n
            ----[EROFS设置]-----

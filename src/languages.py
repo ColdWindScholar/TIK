@@ -18,6 +18,15 @@ Chinese:dict = {
     "Starting update, please do not close the tool...":"开始更新，请不要关闭工具...",
     "The update file is damaged and cannot be updated":"更新文件损坏， 无法更新",
     "Update completed, any button to start a new program...":"更新完毕, 任意按钮启动新程序...",
-    "You are using the latest version! Any button returns！":"你正在使用最新版本！任意按钮返回！"
-
+    "You are using the latest version! Any button returns！":"你正在使用最新版本！任意按钮返回！",
+    "Adjust the brotli compression level (integers 1-9):":"调整brotli压缩等级(整数1-9，级别越高，压缩率越大，耗时越长):",
+    "Package Ext image size: [1]Auto [2]Origin:":"打包Ext镜像大小[1]动态最小 [2]原大小:",
+    "Packing Method:":"打包方案：",
+    "Pack to Sparse:":'Img是否打包为sparse镜像(压缩体积):',
+    "Packaging Image Format [1]Origin [2]Selectable:":"打包镜像系统[1]同解包格式 [2]可选择:",
+    "EROFS Support old Kernel[1/0]":"EROFS打包是否支持旧内核[1/0]",
+    "Packing Settings":"打包设置",
+    "Brotli Level":"Brotli 压缩等级",
+    "EXT4 Settings":"EXT4设置"
+    "Size Handle",""
 }
