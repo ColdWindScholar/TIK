@@ -74,7 +74,6 @@ Chinese:dict = {
     "Version:":"软件版本:",
     "Open Source License:":"开源协议:",
     "Thanks to:":"特别鸣谢:",
-    "Settings":"设置",
     "[Packaging] Related Settings":"[打包]相关设置",
     "[Dynamic Partition] Related Settings":"[动态分区]相关设置",
     "About":"关于工具",
@@ -215,4 +214,5 @@ Chinese:dict = {
     "Unpack":"解压",
     "Created":"已创建",
     "Create":"创建",
+    "Settings":"设置",
 }
