@@ -642,16 +642,16 @@ class Tool:
         project_dir = LOCALDIR + os.sep + self.pro
         cls()
         os.chdir(project_dir)
-        print(" \n\033[31m>项目菜单 \033[0m\n")
-        print(f"  项目：{self.pro}\033[91m(不完整)\033[0m\n") if not os.path.exists(
+        print(" \n\033[31m>Project Menu \033[0m\n")
+        print(f"  Project:{self.pro}\033[91m(Incomplete)\033[0m\n") if not os.path.exists(
             os.path.abspath('config')) else print(
-            f"  项目：{self.pro}\n")
+            f"  Project:{self.pro}\n")
         if not os.path.exists(project_dir + os.sep + 'TI_out'):
             os.makedirs(project_dir + os.sep + 'TI_out')
         print('\033[33m    0> 回到主页     2> 解包菜单\033[0m\n')
         print('\033[36m    3> 打包菜单     4> 插件菜单\033[0m\n')
         print('\033[32m    5> 一键封装     6> 定制功能\033[0m\n')
-        op_menu = input("    请输入编号: ")
+        op_menu = input("    Please enter the number: ")
         if op_menu == '0':
             os.chdir(LOCALDIR)
             return
@@ -667,7 +667,7 @@ class Tool:
             self.custom_rom()
         else:
             ywarn('   Input error!')
-            input("任意按钮继续")
+            input("Enter to continue")
         self.project()
 
     def custom_rom(self):

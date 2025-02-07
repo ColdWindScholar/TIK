@@ -100,6 +100,8 @@ Chinese:dict = {
     "Project Already exists! Automatically named as:":"项目已存在！自动命名为：",
     "Enter to continue":"回车以继续",
     "Thank you for using TI-KITCHEN4. Goodbye！":"感谢使用TI-KITCHEN5,再见！",
-    "Processing:":"正在处理:"
-
+    "Processing:":"正在处理:",
+    "Project:":"项目：",
+    "Incomplete":"不完整",
+    "Project Menu":"项目菜单"
 }
