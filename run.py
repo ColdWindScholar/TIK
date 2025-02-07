@@ -537,7 +537,7 @@ class Tool:
         print(" >\033[33m Project List \033[0m\n")
         print("\033[31m   [00]  Remove Project\033[0m\n\n", "  [0]  New Project\n")
         for pros in os.listdir(LOCALDIR):
-            if pros not in ['bin', 'src'] or pros.startswith('.'):
+            if pros in ['bin', 'src'] or pros.startswith('.'):
                 continue
             if os.path.isdir(o_path.join(LOCALDIR, pros)):
                 pro += 1
@@ -770,8 +770,8 @@ class Tool:
         cls()
         zipn = 0
         zips = {}
-        print(" \033[31m >ROM列表 \033[0m\n")
-        ywarn(f"   请将ROM置于{LOCALDIR}下！\n")
+        print(" \033[31m >ROM List \033[0m\n")
+        ywarn(f"   Please place the ROM in {LOCALDIR}！\n")
         if dir_has(LOCALDIR, '.zip'):
             for zip0 in os.listdir(LOCALDIR):
                 if zip0.endswith('.zip'):
@@ -781,31 +781,31 @@ class Tool:
                             print(f"   [{zipn}]- {zip0}\n")
                             zips[zipn] = zip0
         else:
-            ywarn("	没有ROM文件！")
+            ywarn("	No Files!")
         print("--------------------------------------------------\n")
         zipd = input("Please Enter:")
         if zipd.isdigit():
             if int(zipd) in zips.keys():
-                projec = input("请输入项目名称(可留空)：")
+                projec = input("Enter Project Name (Can Empty)：")
                 project = "TI_%s" % projec if projec else "TI_%s" % os.path.basename(zips[int(zipd)]).replace('.zip',
                                                                                                               '')
                 if os.path.exists(LOCALDIR + os.sep + project):
                     project = project + time.strftime("%m%d%H%M%S")
-                    ywarn(f"项目已存在！自动命名为：{project}")
+                    ywarn(f"Project Already exists! Automatically named as:{project}")
                 os.makedirs(LOCALDIR + os.sep + project)
-                print(f"创建{project}成功！")
-                with Console().status("[yellow]解压刷机包中...[/]"):
+                print(f"Create {project} Successful！")
+                with Console().status("[yellow]Unzipping Rom...[/]"):
                     zipfile.ZipFile(os.path.abspath(zips[int(zipd)])).extractall(LOCALDIR + os.sep + project)
-                yecho("分解ROM中...")
+                yecho("Decomposing ROM...")
                 autounpack(LOCALDIR + os.sep + project)
                 self.pro = project
                 self.project()
             else:
                 ywarn("Input Error")
-                input("任意按钮继续")
+                input("Enter to continue")
         else:
             ywarn("Input error!")
-            input("任意按钮继续")
+            input("Enter to continue")
 
 
 def get_all_file_paths(directory) -> Ellipsis:
@@ -822,18 +822,18 @@ class zip_file:
         os.chdir(dst_dir)
         relpath = str(path + file)
         if os.path.exists(relpath):
-            ywarn(f"存在同名文件：{file}，已自动重命名为{(relpath := path + utils.v_code() + file)}")
+            ywarn(f"A file with the same name exists:{file}，Automatically renamed to {(relpath := path + utils.v_code() + file)}")
         with zipfile.ZipFile(relpath, 'w', compression=zipfile.ZIP_DEFLATED,
                              allowZip64=True) as zip_:
             # 遍历写入文件
             for file in get_all_file_paths('.'):
-                print(f"正在写入:%s" % file)
+                print(f"Writing:%s" % file)
                 try:
                     zip_.write(file)
                 except Exception as e:
-                    print("写入{}时错误{}".format(file, e))
+                    print(f"Cannot Write {file}.", e)
         if os.path.exists(relpath):
-            print(f'打包完成:{relpath}')
+            print(f'Complete:{relpath}')
         os.chdir(local)
 
 
@@ -844,7 +844,7 @@ def subbed(project):
     subn = 0
     mysubs = {}
     names = {}
-    print(" >\033[31m插件列表 \033[0m\n")
+    print(" >\033[31mPlugin List \033[0m\n")
     for sub in os.listdir(binner + os.sep + "subs"):
         if os.path.isfile(binner + os.sep + "subs" + os.sep + sub + os.sep + "info.json"):
             with open(binner + os.sep + "subs" + os.sep + sub + os.sep + "info.json") as l_info:
@@ -854,21 +854,21 @@ def subbed(project):
             mysubs[subn] = sub
             names[subn] = name
     print("----------------------------------------------\n")
-    print("\033[33m> [66]-安装 [77]-删除 [0]-返回\033[0m")
-    op_pro = input("请输入序号：")
+    print("\033[33m> [66]-Install [77]-Uninstall [0]-Return\033[0m")
+    op_pro = input("Please enter the number:")
     if op_pro == '66':
-        path = input("请输入插件路径或[拖入]:")
+        path = input("Please Enter Path of mpk:")
         if os.path.exists(path) and not path.endswith('.zip2'):
             installmpk(path)
         elif path.endswith('.zip2'):
             installmpk(zip2mpk.main(path, os.getcwd()))
         else:
-            ywarn(f"{path}不存在！")
-        input("任意按钮继续")
+            ywarn(f"{path}Not Exist！")
+        input("Enter to continue")
     elif op_pro == '77':
-        chose = input("输入插件序号:")
+        chose = input("Enter the plugin serial number:")
         unmpk(mysubs[int(chose)], names[int(chose)], binner + os.sep + "subs") if int(
-            chose) in mysubs.keys() else ywarn("序号错误")
+            chose) in mysubs.keys() else ywarn("Invalid Number")
     elif op_pro == '0':
         return
     elif op_pro.isdigit():
@@ -881,12 +881,11 @@ def subbed(project):
                     gen = gen_sh_engine(project, gavs, value)
                 else:
                     gen = gen_sh_engine(project)
-                call(
-                    f'busybox ash {gen} {os.path.join(plugin_path, "main.sh").replace(os.sep, "/")}')
+                call(["busybox", 'ash', gen, os.path.join(plugin_path, "main.sh").replace(os.sep, "/")])
                 f_remove(gen)
             else:
-                ywarn(f"{mysubs[int(op_pro)]}为环境插件，不可运行！")
-            input("任意按钮返回")
+                ywarn(f"{mysubs[int(op_pro)]} is a environment, Cannot run！")
+            input("Enter to continue")
     subbed(project)
 
 
@@ -913,7 +912,7 @@ class installmpk:
             return
         if not zipfile.is_zipfile(mpk):
             ywarn("非插件！")
-            input("任意按钮返回")
+            input("Enter to return")
         with zipfile.ZipFile(mpk, 'r') as myfile:
             with myfile.open('info') as info_file:
                 self.mconf.read_string(info_file.read().decode('utf-8'))
@@ -935,7 +934,7 @@ class installmpk:
             self.install()
         else:
             yecho("取消安装")
-            input("任意按钮返回")
+            input("Enter to return")
 
     def install(self):
         try:
