@@ -98,9 +98,9 @@ def rmdire(path):
         try:
             shutil.rmtree(path)
         except PermissionError:
-            ywarn("无法删除文件夹，权限不足")
+            ywarn('Cannot Remove The Folder, Permission denied.')
         else:
-            ysuc("删除成功！")
+            ysuc("Remove Successful!")
 
 
 def error(exception_type, exception, traceback):
@@ -197,35 +197,35 @@ class upgrade:
         if not os.path.exists(temp):
             os.makedirs(temp)
         cls()
-        with Console().status(f"[blue]正在检测新版本...[/]"):
+        with Console().status(f"[blue]Detecting new version...[/]"):
             try:
                 data = requests.get(self.update_json).json()
             except (Exception, BaseException):
                 data = None
         if not data:
-            input("连接服务器失败, 按任意按钮返回")
+            input("Connect to server failed, press any button to return")
             return
         else:
             if data.get('version', settings.version) != settings.version:
                 print(f'\033[31m {banner.banner1} \033[0m')
                 print(
-                    f"\033[0;32;40m发现版本：\033[0m\033[0;36;40m{settings.version} --> {data.get('version')}\033[0m")
-                print(f"\033[0;32;40m更新日志：\n\033[0m\033[0;36;40m{data.get('log', '1.Fix Some Bugs')}\033[0m")
-                input("注意，交流群与release中的构建始终为最新开发环境版本，本功能仅用于检测近期较为稳定的构建")
+                    f"\033[0;32;40mNew Version：\033[0m\033[0;36;40m{settings.version} --> {data.get('version')}\033[0m")
+                print(f"\033[0;32;40mChangeLog：\n\033[0m\033[0;36;40m{data.get('log', '1.Fix Some Bugs')}\033[0m")
+                input("Please note that the builds in the communication group and release are always the latest development environment version. This feature is only used to detect recent stable builds")
                 try:
                     link = data['link'][plat.system()][plat.machine()]
                 except (Exception, BaseException):
-                    input("未发现适用于您设备的更新，请前往https://github.com/ColdWindScholar/TIK下载源代码自行更新")
+                    input("No updates found for your device, please go to https://github.com/ColdWindScholar/TIK update it yourself")
                     return
                 if not link:
-                    input("未发现适用于您设备的更新，请前往https://github.com/ColdWindScholar/TIK下载源代码自行更新")
+                    input("No updates found for your device, please go to https://github.com/ColdWindScholar/TIK update it yourself")
                     return
-                if input("\033[0;33;40m是否更新?[1/0]\033[0m") == '1':
-                    print("正在下载新版本...")
+                if input("\033[0;33;40mUpdate it?[1/0]\033[0m") == '1':
+                    print("Downloading...")
                     try:
                         downloader.download([link], temp)
                     except (BaseException, Exception):
-                        input("下载错误，请稍后重试")
+                        input("Download error, please try again later")
                         return
                     print("开始更新，请不要关闭工具...")
                     upgrade_pkg = os.path.join(temp, os.path.basename(link))
