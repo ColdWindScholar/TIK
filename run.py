@@ -369,21 +369,21 @@ class setting:
     def settings3(self):
         cls()
         print(f'''
-    \033[33m  > 工具设置 \033[0m\n
-       1>自定义首页banner \033[93m[{settings.banner}]\033[0m\n
-       2>联网模式 \033[93m[{settings.online}]\033[0m\n
-       3>Contexts修补 \033[93m[{settings.context}]\033[0m\n
-       4>工具语言 \033[93m[{settings.language}]\033[0m\n
-       5>检查更新 \n
-       0>返回上级\n
+    \033[33m  > Tool settings \033[0m\n
+       1>Banner \033[93m[{settings.banner}]\033[0m\n
+       2>Online Mode \033[93m[{settings.online}]\033[0m\n
+       3>Contexts Patcher \033[93m[{settings.context}]\033[0m\n
+       4>Language \033[93m[{settings.language}]\033[0m\n
+       5>Check Update \n
+       0>Previous Menu\n
        --------------------------
             ''')
-        op_pro = input("   请输入编号: ")
+        op_pro = input("   Please enter the number: ")
         if op_pro == "0":
             return
         elif op_pro == '1':
-            print(f"  首页banner: [1]TIK5 [2]镰刀斧头 [3]TIK2 [4]原神 [5]DXY [6]None")
-            banner_i = input("  请输入序号: ")
+            print(f"  Banner: [1]TIK5 [2]Sickle and axe head [3]TIK2 [4]YuanSheng [5]DXY [6]None")
+            banner_i = input("  Please enter the number: ")
             if banner_i.isdigit():
                 if 0 < int(banner_i) < 7:
                     settings.change('banner', banner_i)
@@ -393,10 +393,10 @@ class setting:
             settings.change('context', 'false' if settings.context == 'true' else 'true')
         elif op_pro == '4':
             language_list = {index:lan for index, lan in enumerate(dir(languages)) if lan != 'default' and not lan.startswith("_") and not lan.endswith('_')}
-            print("选择您的语言：")
+            print("Select Your Language:")
             for index, lan in language_list.items():
                 print(f'{index}>{lan}')
-            language = language_list.get(int(input("选择您的语言：")), languages.default)
+            language = language_list.get(int(input("Select Your Language:")), languages.default)
             settings.change('language', language)
         elif op_pro == '5':
             upgrade()
@@ -406,14 +406,14 @@ class setting:
     def settings4():
         cls()
         print(f'\033[31m {banner.banner1} \033[0m')
-        print('\033[96m 开源的安卓全版本ROM处理工具\033[0m')
+        print('\033[96m Open source Android full version ROM processing tool\033[0m')
         print('\033[31m---------------------------------\033[0m')
-        print(f"\033[93m作者:\033[0m \033[92mColdWindScholar\033[0m")
-        print(f"\033[93m开源地址:\033[0m \033[91mhttps://github.com/ColdWindScholar/TIK\033[0m")
-        print(f"\033[93m软件版本:\033[0m \033[44mAlpha Edition\033[0m")
-        print(f"\033[93m开源协议:\033[0m \033[68mGNU General Public License v3.0 \033[0m")
+        print(f"\033[93mAuthor:\033[0m \033[92mColdWindScholar\033[0m")
+        print(f"\033[93mOpen Source Link:\033[0m \033[91mhttps://github.com/ColdWindScholar/TIK\033[0m")
+        print(f"\033[93mVersion:\033[0m \033[44mAlpha Edition\033[0m")
+        print(f"\033[93mOpen Source License:\033[0m \033[68mGNU General Public License v3.0 \033[0m")
         print('\033[31m---------------------------------\033[0m')
-        print(f"\033[93m特别鸣谢:\033[0m")
+        print(f"\033[93mThanks to:\033[0m")
         print('\033[94mAffggh')
         print("Yeliqin666")
         print('YukongA')
@@ -423,15 +423,15 @@ class setting:
     def __init__(self):
         cls()
         print('''
-    \033[33m  > 设置 \033[0m
-       1>[打包]相关设置\n
-       2>[动态分区]相关设置\n
-       3>工具设置\n
-       4>关于工具\n
-       0>返回主页
+    \033[33m  > Settings \033[0m
+       1>[Packaging] Related Settings\n
+       2>[Dynamic Partition] Related Settings\n
+       3>Tool settings\n
+       4>About\n
+       0>Home
        --------------------------
     ''')
-        op_pro = input("   请输入编号: ")
+        op_pro = input("   Please enter the number: ")
         if op_pro == "0":
             return
         try:
@@ -457,7 +457,7 @@ def plug_parse(js_on):
                 try:
                     data_ = json.load(f)
                 except Exception as e:
-                    ywarn("解析错误 %s" % e)
+                    ywarn("Parse Error %s" % e)
                     return
                 plugin_title = data_['main']['info']['title']
                 print("----------" + plugin_title + "----------")
@@ -471,14 +471,14 @@ def plug_parse(js_on):
                                     print("----------" + con['text'] + "----------")
                             elif con["type"] == "filechose":
                                 file_var_name = con['set']
-                                ysuc("请在下方拖入文件或输入路径")
+                                ysuc("Please drag the file below or enter the path")
                                 self.gavs[file_var_name] = input(con['text'])
                             elif con["type"] == "radio":
                                 gavs = {}
                                 radio_var_name = con['set']
                                 options = con['opins'].split()
                                 cs = 0
-                                print("-------选项---------")
+                                print("-------Options---------")
                                 for option in options:
                                     cs += 1
                                     text, value = option.split('|')
@@ -486,19 +486,19 @@ def plug_parse(js_on):
                                     print(f"[{cs}] {text}")
                                     gavs[str(cs)] = value
                                 print("---------------------------")
-                                op_in = input("请输入您的选择:")
+                                op_in = input("Please Enter:")
                                 self.gavs[radio_var_name] = gavs[op_in] if op_in in gavs.keys() else gavs["1"]
                             elif con["type"] == 'input':
                                 input_var_name = con['set']
                                 if 'text' in con:
                                     print(con['text'])
-                                self.gavs[input_var_name] = input("请输入一个值:")
+                                self.gavs[input_var_name] = input("Please Enter A Value:")
                             elif con['type'] == 'checkbutton':
                                 b_var_name = con['set']
                                 text = 'M.K.C' if 'text' not in con else con['text']
                                 self.gavs[b_var_name] = 1 if input(text + "[1/0]:") == '1' else 0
                             else:
-                                print("不支持的解析:%s" % con['type'])
+                                print("Unsupported Widget:%s" % con['type'])
 
     data = parse(js_on)
     return data.gavs, data.value
@@ -528,28 +528,28 @@ class Tool:
                 fr = content['origin']
                 another = content['author']
             except (Exception, BaseException):
-                print(f"\033[36m “开源，是一场无问西东的前行”\033[0m\n")
+                print(f"\033[36m “Open source is a journey without any questions”\033[0m\n")
             else:
                 print(f"\033[36m “{shiju}”")
                 print(f"\033[36m---{another}《{fr}》\033[0m\n")
         else:
-            print(f"\033[36m “开源，是一场无问西东的前行”")
-        print(" >\033[33m 项目列表 \033[0m\n")
-        print("\033[31m   [00]  删除项目\033[0m\n\n", "  [0]  新建项目\n")
+            print(f"\033[36m “Open source is a journey without any questions”")
+        print(" >\033[33m Project List \033[0m\n")
+        print("\033[31m   [00]  Remove Project\033[0m\n\n", "  [0]  New Project\n")
         for pros in os.listdir(LOCALDIR):
-            if pros == 'bin' or pros.startswith('.'):
+            if pros not in ['bin', 'src'] or pros.startswith('.'):
                 continue
             if os.path.isdir(o_path.join(LOCALDIR, pros)):
                 pro += 1
                 print(f"   [{pro}]  {pros}\n")
                 projects[str(pro)] = pros
         print("  --------------------------------------")
-        print("\033[33m  [55] 解压  [66] 退出  [77] 设置  [88] 下载ROM\033[0m\n")
-        op_pro = input("  请输入序号：")
+        print("\033[33m  [55] Unpack  [66] Exit  [77] Settings  [88] Download ROM\033[0m\n")
+        op_pro = input("  Please enter the number:")
         if op_pro == '55':
             self.unpackrom()
         elif op_pro == '88':
-            url = input("输入下载链接:")
+            url = input("Enter download link:")
             if url:
                 try:
                     downloader.download([url], LOCALDIR)
@@ -557,30 +557,30 @@ class Tool:
                     ...
                 self.unpackrom()
         elif op_pro == '00':
-            op_pro = input("  请输入你要删除的项目序号:")
+            op_pro = input("  Please enter the project number you want to delete:")
             op_pro = op_pro.split() if " " in op_pro else [op_pro]
             for op in op_pro:
                 if op in projects.keys():
-                    if input(f"  确认删除{projects[op]}？[1/0]") == '1':
+                    if input(f"  Sure Delete {projects[op]}？[1/0]") == '1':
                         rmdire(o_path.join(LOCALDIR, projects[op]))
                     else:
-                        ywarn("取消删除")
+                        ywarn("Undelete")
         elif op_pro == '0':
-            projec = input("请输入项目名称(非中文)：")
+            projec = input("Please Enter Project Name:")
             if projec:
                 if os.path.exists(o_path.join(LOCALDIR, projec)):
                     projec = f'{projec}_{time.strftime("%m%d%H%M%S")}'
-                    ywarn(f"项目已存在！自动命名为：{projec}")
+                    ywarn(f"Project Already exists! Automatically named as:{projec}")
                     time.sleep(1)
                 os.makedirs(o_path.join(LOCALDIR, projec, "config"))
                 self.pro = projec
                 self.project()
             else:
                 ywarn("  Input error!")
-                input("任意按钮继续")
+                input("Enter to continue")
         elif op_pro == '66':
             cls()
-            ysuc("\n感谢使用TI-KITCHEN5,再见！")
+            ysuc("\nThank you for using TI-KITCHEN4. Goodbye！")
             sys.exit(0)
         elif op_pro == '77':
             setting()
@@ -590,15 +590,15 @@ class Tool:
                 self.project()
             else:
                 ywarn("  Input error!")
-                input("任意按钮继续")
+                input("Enter to continue")
         else:
             ywarn("  Input error!")
-            input("任意按钮继续")
+            input("Enter to continue")
         self.main()
 
     @staticmethod
     def dis_avb(fstab):
-        print(f"正在处理: {fstab}")
+        print(f"Processing: {fstab}")
         if not os.path.exists(fstab):
             return
         with open(fstab, "r") as sf:
@@ -621,7 +621,7 @@ class Tool:
 
     @staticmethod
     def dis_data_encryption(fstab):
-        print(f"正在处理: {fstab}")
+        print(f"Processing: {fstab}")
         if not os.path.exists(fstab):
             return
         with open(fstab, "r") as sf:
