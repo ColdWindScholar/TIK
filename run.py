@@ -1734,7 +1734,7 @@ def inpayload(supersize, project):
             partname.append(sf.replace('.img', ''))
             if gettype(project + os.sep + 'payload' + os.sep + sf) in ['ext', 'erofs']:
                 super_list.append(sf.replace('.img', ''))
-            pimages.append(f"{project}{os.sep}payload{os.sep}{sf}")
+            pimages.append(f"{project}/payload/{sf}")
             yecho(f"预打包:{sf}")
     inparts = f"--partition_names={':'.join(partname)} --new_partitions={':'.join(pimages)}"
     yecho(f"当前Super逻辑分区表：{super_list}")
