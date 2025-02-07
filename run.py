@@ -908,10 +908,10 @@ class installmpk:
         super().__init__()
         self.mconf = ConfigParser()
         if not mpk:
-            ywarn("插件不存在")
+            ywarn("The plugin does not exist")
             return
         if not zipfile.is_zipfile(mpk):
-            ywarn("非插件！")
+            ywarn("Non plugin！")
             input("Enter to return")
         with zipfile.ZipFile(mpk, 'r') as myfile:
             with myfile.open('info') as info_file:
@@ -922,18 +922,18 @@ class installmpk:
         print('''
          \033[36m
         ----------------
-           安装新插件
+           Install Mpk
         ----------------
         ''')
-        print("插件名称：" + self.mconf.get('module', 'name'))
-        print("版本:%s\n作者：%s" % (self.mconf.get('module', 'version'), (self.mconf.get('module', 'author'))))
-        print("介绍:")
+        print("Name：" + self.mconf.get('module', 'name'))
+        print("Version:%s\nAuthor:%s" % (self.mconf.get('module', 'version'), (self.mconf.get('module', 'author'))))
+        print("Introduce:")
         print(self.mconf.get('module', 'describe'))
         print("\033[0m\n")
-        if input("要安装吗? [1/0]") == '1':
+        if input("Install? [1/0]") == '1':
             self.install()
         else:
-            yecho("取消安装")
+            yecho("Call off")
             input("Enter to return")
 
     def install(self):
@@ -942,18 +942,18 @@ class installmpk:
         except (Exception, BaseException):
             supports = [sys.platform]
         if sys.platform not in supports:
-            ywarn(f"[!]安装失败:不支持的系统{sys.platform}")
-            input("任意按钮返回")
+            ywarn(f"[!]Installation failed: unsupported system{sys.platform}")
+            input("Enter to return")
             return False
         for dep in self.mconf.get('module', 'depend').split():
             if not os.path.isdir(binner + os.sep + "subs" + os.sep + dep):
-                ywarn(f"[!]安装失败:不满足依赖{dep}")
-                input("任意按钮返回")
+                ywarn(f"[!]Installation failed: dependency not met{dep}")
+                input("Enter to return")
                 return False
         if os.path.exists(binner + os.sep + "subs" + os.sep + self.mconf.get('module', 'identifier')):
             shutil.rmtree(binner + os.sep + "subs" + os.sep + self.mconf.get('module', 'identifier'))
         fz = zipfile.ZipFile(BytesIO(self.inner_zipdata), 'r')
-        for file in track(self.inner_filenames, description="正在安装..."):
+        for file in track(self.inner_filenames, description="Installing..."):
             try:
                 file = str(file).encode('cp437').decode('gbk')
             except (Exception, BaseException):
@@ -985,18 +985,18 @@ class unmpk:
             self.lfdep()
             self.ask()
         else:
-            ywarn("请选择插件！")
-            input("任意按钮继续")
+            ywarn("Please select a plugin！")
+            input("Enter to continue")
 
     def ask(self):
         cls()
-        print(f"\033[31m >删除{self.value2} \033[0m\n")
+        print(f"\033[31m >Uninstall {self.value2} \033[0m\n")
         if self.arr2:
-            print("\033[36m将会同时卸载以下插件")
+            print("\033[36mThe following plugins will be uninstalled simultaneously")
             print("\n".join(self.arr2))
             print("\033[0m\n")
-        self.unloop() if input("确定卸载吗 [1/0]") == '1' else ysuc("取消")
-        input("任意按钮继续")
+        self.unloop() if input("Uninstall? [1/0]") == '1' else ysuc("取消")
+        input("Enter to continue")
 
     def lfdep(self, name=None):
         if not name:
@@ -1020,23 +1020,23 @@ class unmpk:
 
     def umpk(self, name=None) -> None:
         if name:
-            print(f"正在卸载:{name}")
+            print(f"Uninstalling:{name}")
             if os.path.exists(self.moddir + os.sep + name):
                 shutil.rmtree(self.moddir + os.sep + name)
-            ywarn(f"卸载{name}失败！") if os.path.exists(self.moddir + os.sep + name) else yecho(f"卸载{name}成功！")
+            ywarn(f"Uninstall {name} Fail！") if os.path.exists(self.moddir + os.sep + name) else yecho(f"卸载{name}成功！")
 
 
 def unpack_choo(project):
     cls()
     os.chdir(project)
-    print(" \033[31m >分解 \033[0m\n")
+    print(" \033[31m >Unpack \033[0m\n")
     filen = 0
     files = {}
     infos = {}
-    ywarn(f"  请将文件放于{project}根目录下！\n")
-    print(" [0]- 分解所有文件\n")
+    ywarn(f"  Please place the file in {project}！\n")
+    print(" [0]- Unpack All\n")
     if dir_has(project, '.br'):
-        print("\033[33m [Br]文件\033[0m\n")
+        print("\033[33m [Br]File\033[0m\n")
         for br0 in os.listdir(project):
             if br0.endswith('.br'):
                 if os.path.isfile(os.path.abspath(br0)):
@@ -1045,7 +1045,7 @@ def unpack_choo(project):
                     files[filen] = br0
                     infos[filen] = 'br'
     if dir_has(project, '.new.dat'):
-        print("\033[33m [Dat]文件\033[0m\n")
+        print("\033[33m [Dat]File\033[0m\n")
         for dat0 in os.listdir(project):
             if dat0.endswith('.new.dat'):
                 if os.path.isfile(os.path.abspath(dat0)):
@@ -1058,11 +1058,11 @@ def unpack_choo(project):
             if dat10.endswith('.dat.1'):
                 if os.path.isfile(os.path.abspath(dat10)):
                     filen += 1
-                    print(f"   [{filen}]- {dat10} <分段DAT>\n")
+                    print(f"   [{filen}]- {dat10} <Split DAT>\n")
                     files[filen] = dat10
                     infos[filen] = 'dat.1'
     if dir_has(project, '.img'):
-        print("\033[33m [Img]文件\033[0m\n")
+        print("\033[33m [Img]File\033[0m\n")
         for img0 in os.listdir(project):
             if img0.endswith('.img'):
                 if os.path.isfile(os.path.abspath(img0)):
@@ -1081,7 +1081,7 @@ def unpack_choo(project):
                     files[filen] = bin0
                     infos[filen] = 'payload'
     if dir_has(project, '.ozip'):
-        print("\033[33m [Ozip]文件\033[0m\n")
+        print("\033[33m [Ozip] File\033[0m\n")
         for ozip0 in os.listdir(project):
             if ozip0.endswith('.ozip'):
                 if os.path.isfile(os.path.abspath(ozip0)) and gettype(os.path.abspath(ozip0)) == 'ozip':
@@ -1090,7 +1090,7 @@ def unpack_choo(project):
                     files[filen] = ozip0
                     infos[filen] = 'ozip'
     if dir_has(project, '.ofp'):
-        print("\033[33m [Ofp]文件\033[0m\n")
+        print("\033[33m [Ofp] File\033[0m\n")
         for ofp0 in os.listdir(project):
             if ofp0.endswith('.ofp'):
                 if os.path.isfile(os.path.abspath(ofp0)):
@@ -1099,7 +1099,7 @@ def unpack_choo(project):
                     files[filen] = ofp0
                     infos[filen] = 'ofp'
     if dir_has(project, '.ops'):
-        print("\033[33m [Ops]文件\033[0m\n")
+        print("\033[33m [Ops] File\033[0m\n")
         for ops0 in os.listdir(project):
             if ops0.endswith('.ops'):
                 if os.path.isfile(os.path.abspath(ops0)):
@@ -1108,7 +1108,7 @@ def unpack_choo(project):
                     files[filen] = ops0
                     infos[filen] = 'ops'
     if dir_has(project, '.win'):
-        print("\033[33m [Win]文件\033[0m\n")
+        print("\033[33m [Win] File\033[0m\n")
         for win0 in os.listdir(project):
             if win0.endswith('.win'):
                 if os.path.isfile(os.path.abspath(win0)):
@@ -1121,11 +1121,11 @@ def unpack_choo(project):
             if win0000.endswith('.win000'):
                 if os.path.isfile(os.path.abspath(win0000)):
                     filen += 1
-                    print(f"   [{filen}]- {win0000} <分段WIN> \n")
+                    print(f"   [{filen}]- {win0000} <Split WIN> \n")
                     files[filen] = win0000
                     infos[filen] = 'win000'
     if dir_has(project, '.dtb'):
-        print("\033[33m [Dtb]文件\033[0m\n")
+        print("\033[33m [Dtb] File\033[0m\n")
         for dtb0 in os.listdir(project):
             if dtb0.endswith('.dtb'):
                 if os.path.isfile(os.path.abspath(dtb0)) and gettype(os.path.abspath(dtb0)) == 'dtb':
@@ -1133,18 +1133,18 @@ def unpack_choo(project):
                     print(f'   [{filen}]- {dtb0}\n')
                     files[filen] = dtb0
                     infos[filen] = 'dtb'
-    print("\n\033[33m  [00] 返回  [77] 循环解包  \033[0m")
+    print("\n\033[33m  [00] Return  [77] Loop Unpacking  \033[0m")
     print("  --------------------------------------")
-    filed = input("  请输入对应序号：")
+    filed = input("  Please enter the number: ")
     if filed == '0':
         for v in files.keys():
             unpack(files[v], infos[v], project)
     elif filed == '77':
         imgcheck = 0
-        upacall = input("  是否解包所有文件？ [1/0]")
+        upacall = input(" Whether or not unpack all files? [1/0]")
         for v in files.keys():
             if upacall != '1':
-                imgcheck = input(f"  是否解包{files[v]}?[1/0]")
+                imgcheck = input(f"  Whether unpack {files[v]}?[1/0]")
             if upacall == "1" or imgcheck != "0":
                 unpack(files[v], infos[v], project)
     elif filed == '00':
@@ -1153,13 +1153,13 @@ def unpack_choo(project):
         unpack(files[int(filed)], infos[int(filed)], project) if int(filed) in files.keys() else ywarn("Input error!")
     else:
         ywarn("Input error!")
-    input("任意按钮继续")
+    input("Enter to continue")
     unpack_choo(project)
 
 
 def packChoo(project):
     cls()
-    print(" \033[31m >打包 \033[0m\n")
+    print(" \033[31m >Pack \033[0m\n")
     partn = 0
     parts = {}
     types = {}
@@ -1167,7 +1167,7 @@ def packChoo(project):
     if not os.path.exists(project + os.sep + "config"):
         os.makedirs(project + os.sep + "config")
     if project:
-        print("   [0]- 打包所有镜像\n")
+        print("   [0]- Pack All\n")
         for packs in os.listdir(project):
             if os.path.isdir(project + os.sep + packs):
                 if os.path.exists(project + os.sep + "config" + os.sep + packs + "_fs_config"):
@@ -1194,11 +1194,11 @@ def packChoo(project):
                     parts[partn] = packs
                     types[partn] = 'dtbo'
                     print(f"   [{partn}]- {packs} <dtbo>\n")
-        print("\n\033[33m [55] 循环打包 [66] 打包Super [77] 打包Payload [00]返回\033[0m")
+        print("\n\033[33m [55] Loop Pack [66] Pack Super [77] Pack Payload [00]Return\033[0m")
         print("  --------------------------------------")
-        filed = input("  请输入对应序号：")
+        filed = input("  Please enter the number:")
         if filed == '0':
-            op_menu = input("  输出文件格式[1]br [2]dat [3]img:")
+            op_menu = input("  Output file format[1]br [2]dat [3]img:")
             if op_menu == '1':
                 form = 'br'
             elif op_menu == '2':
@@ -1206,7 +1206,7 @@ def packChoo(project):
             else:
                 form = 'img'
             if settings.diyimgtype == '1':
-                imgtype = input("手动打包所有分区格式为：[1]ext4 [2]erofs [3]f2fs:")
+                imgtype = input("Pack File System:[1]ext4 [2]erofs [3]f2fs:")
                 if imgtype == '1':
                     imgtype = 'ext'
                 elif imgtype == '2':
@@ -1216,7 +1216,7 @@ def packChoo(project):
             else:
                 imgtype = 'ext'
             for f in track(parts.keys()):
-                yecho(f"打包{parts[f]}...")
+                yecho(f"Packing {parts[f]}...")
                 if types[f] == 'bootimg':
                     dboot(project + os.sep + parts[f], project + os.sep + parts[f] + ".img")
                 elif types[f] == 'dtb':
@@ -1226,7 +1226,7 @@ def packChoo(project):
                 else:
                     inpacker(parts[f], project, form, imgtype)
         elif filed == '55':
-            op_menu = input("  输出所有文件格式[1]br [2]dat [3]img:")
+            op_menu = input("  Output file format of all [1]br [2]dat [3]img:")
             if op_menu == '1':
                 form = 'br'
             elif op_menu == '2':
@@ -1234,7 +1234,7 @@ def packChoo(project):
             else:
                 form = 'img'
             if settings.diyimgtype == '1':
-                imgtype = input("手动打包所有分区格式为：[1]ext4 [2]erofs [3]f2fs:")
+                imgtype = input("Pack File System：[1]ext4 [2]erofs [3]f2fs:")
                 if imgtype == '1':
                     imgtype = 'ext'
                 elif imgtype == '2':
@@ -1244,11 +1244,11 @@ def packChoo(project):
             else:
                 imgtype = 'ext'
             for f in parts.keys():
-                imgcheck = input(f"  是否打包{parts[f]}?[1/0]	") if input(
-                    "  是否打包所有镜像？ [1/0]	") != '1' else '1'
+                imgcheck = input(f"  Whether Pack {parts[f]}?[1/0]	") if input(
+                    "  Whether Pack All？ [1/0]	") != '1' else '1'
                 if not imgcheck == '1':
                     continue
-                yecho(f"打包{parts[f]}...")
+                yecho(f"Packing {parts[f]}...")
                 if types[f] == 'bootimg':
                     dboot(project + os.sep + parts[f], project + os.sep + parts[f] + ".img")
                 elif types[f] == 'dtb':
@@ -1266,7 +1266,7 @@ def packChoo(project):
         elif filed.isdigit():
             if int(filed) in parts.keys():
                 if settings.diyimgtype == '1' and types[int(filed)] not in ['bootimg', 'dtb', 'dtbo']:
-                    imgtype = input("手动打包所有分区格式为：[1]ext4 [2]erofs [3]f2fs:")
+                    imgtype = input("Pack File System：[1]ext4 [2]erofs [3]f2fs:")
                     if imgtype == '1':
                         imgtype = 'ext'
                     elif imgtype == '2':
@@ -1276,7 +1276,7 @@ def packChoo(project):
                 else:
                     imgtype = 'ext'
                 if settings.diyimgtype == '1' and types[int(filed)] not in ['bootimg', 'dtb', 'dtbo']:
-                    op_menu = input("  输出所有文件格式[1]br [2]dat [3]img:")
+                    op_menu = input("  Output file format of all[1]br [2]dat [3]img:")
                     if op_menu == '1':
                         form = 'br'
                     elif op_menu == '2':
@@ -1285,7 +1285,7 @@ def packChoo(project):
                         form = 'img'
                 else:
                     form = 'img'
-                yecho(f"打包{parts[int(filed)]}")
+                yecho(f"Packing {parts[int(filed)]}")
                 if types[int(filed)] == 'bootimg':
                     dboot(project + os.sep + parts[int(filed)], project + os.sep + parts[int(filed)] + ".img")
                 elif types[int(filed)] == 'dtb':
@@ -1298,7 +1298,7 @@ def packChoo(project):
                 ywarn("Input error!")
         else:
             ywarn("Input error!")
-        input("任意按钮继续")
+        input("Enter to continue")
         packChoo(project)
 
 
@@ -1351,7 +1351,7 @@ def dboot(infile, orig):
         try:
             rmdire(infile)
         except (Exception, BaseException):
-            print("删除错误...")
+            print("Remove Fail...")
         print("Pack Successful...")
 
 
@@ -1393,7 +1393,7 @@ def undtb(project, infile):
     if not os.path.exists(dtbdir):
         os.makedirs(dtbdir)
     extract_dtb.extract_dtb.split(Namespace(filename=infile, output_dir=dtbdir + os.sep + "dtb_files", extract=1))
-    yecho("正在反编译dtb...")
+    yecho("Decompiling dtb...")
     for i in track(os.listdir(dtbdir + os.sep + "dtb_files")):
         if i.endswith('.dtb'):
             name = i.split('.')[0]
@@ -1404,7 +1404,7 @@ def undtb(project, infile):
                 out=1)
     open(project + os.sep + os.sep + "config" + os.sep + "dtbinfo_" + os.path.basename(infile).split(".")[0],
          'w').close()
-    ysuc("反编译完成!")
+    ysuc("Decompile completed!")
     time.sleep(1)
 
 
@@ -1414,17 +1414,18 @@ def makedtb(sf, project):
     os.makedirs(dtbdir + os.sep + "new_dtb_files")
     for dts_files in os.listdir(dtbdir + os.sep + "dtb_files"):
         new_dtb_files = dts_files.split('.')[0]
-        yecho(f"正在回编译{dts_files}为{new_dtb_files}.dtb")
+        yecho(f"Compiling {dts_files} to {new_dtb_files}.dtb")
         dtb_ = dtbdir + "/dtb_files/" + dts_files
         if call(['dtc', '-@', '-I', 'dts', '-O', 'dtb', dtb_, '-o', f'{dtbdir}/new_dtb_files/{new_dtb_files}.dtb'],
                 out=1) != 0:
-            ywarn("回编译dtb失败")
+            ywarn("Failed to compile DTB")
     with open(project + os.sep + "TI_out" + os.sep + sf, 'wb') as sff:
         for dtb in os.listdir(dtbdir + os.sep + "new_dtb_files"):
             if dtb.endswith('.dtb'):
                 with open(os.path.abspath(dtb), 'rb') as f:
                     sff.write(f.read())
-    ysuc("回编译完成！")
+    ysuc("Compilation completed！")
+    input("Enter to continue")
 
 
 def undtbo(project, infile):
@@ -1437,17 +1438,17 @@ def undtbo(project, infile):
             os.makedirs(dtbodir + os.sep + "dts_files")
         except (Exception, BaseException):
             ...
-    yecho("正在解压dtbo.img")
+    yecho("Unpacking dtbo.img")
     mkdtboimg.dump_dtbo(infile, dtbodir + os.sep + "dtbo_files" + os.sep + "dtbo")
     for dtbo_file in os.listdir(dtbodir + os.sep + "dtbo_files"):
         if dtbo_file.startswith('dtbo.'):
             dts_files = dtbo_file.replace("dtbo", 'dts')
-            yecho(f"正在反编译{dtbo_file}为{dts_files}")
+            yecho(f"Decompiling{dtbo_file}to{dts_files}")
             dtbofiles = dtbodir +  "/dtbo_files/" + dtbo_file
             if call(['dtc', '-@', '-I', 'dtb', '-O', 'dts', dtbofiles, '-o', f"{dtbodir}/dts_files/{dts_files}"],
                     out=1) != 0:
-                ywarn(f"反编译{dtbo_file}失败！")
-    ysuc("完成！")
+                ywarn(f"Decompiling {dtbo_file} Fail！")
+    ysuc("Done!")
     time.sleep(1)
 
 
@@ -1459,12 +1460,12 @@ def makedtbo(sf, project):
     os.makedirs(dtbodir + os.sep + 'new_dtbo_files')
     for dts_files in os.listdir(dtbodir + os.sep + 'dts_files'):
         new_dtbo_files = dts_files.replace('dts', 'dtbo')
-        yecho(f"正在回编译{dts_files}为{new_dtbo_files}")
+        yecho(f"Compiling {dts_files} to {new_dtbo_files}")
         dtb_ = dtbodir + os.sep + "dts_files" + os.sep + dts_files
         call(
             ['dtc', '-@', '-I', 'dts', '-O', 'dtb', dtb_, '-o', f"{dtbodir}/new_dtbo_files/{new_dtbo_files}"],
             out=1)
-    yecho("正在生成dtbo.img...")
+    yecho("Creating dtbo.img...")
     list_ = []
     for b in os.listdir(dtbodir + os.sep + "new_dtbo_files"):
         if b.startswith('dtbo.'):
@@ -1473,9 +1474,10 @@ def makedtbo(sf, project):
     try:
         mkdtboimg.create_dtbo(project + os.sep + os.path.basename(sf).split('.')[0] + '.img', list_, 4096)
     except (Exception, BaseException):
-        ywarn(f"{os.path.basename(sf).split('.')[0]}.img生成失败!")
+        ywarn(f"Create {os.path.basename(sf).split('.')[0]}.img Fail!")
     else:
-        ysuc(f"{os.path.basename(sf).split('.')[0]}.img生成完毕!")
+        ysuc(f"Create {os.path.basename(sf).split('.')[0]}.img Successfully!")
+    input("Enter to continue")
 
 
 def inpacker(name, project, form, ftype, json_=None):
