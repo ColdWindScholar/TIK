@@ -648,9 +648,9 @@ class Tool:
             f"  Project:{self.pro}\n")
         if not os.path.exists(project_dir + os.sep + 'TI_out'):
             os.makedirs(project_dir + os.sep + 'TI_out')
-        print('\033[33m    0> 回到主页     2> 解包菜单\033[0m\n')
-        print('\033[36m    3> 打包菜单     4> 插件菜单\033[0m\n')
-        print('\033[32m    5> 一键封装     6> 定制功能\033[0m\n')
+        print('\033[33m    0> Home     2> Unpack Menu\033[0m\n')
+        print('\033[36m    3> Pack Menu     4> Plugin Menu\033[0m\n')
+        print('\033[32m    5> Pack Rom     6> Other Tools\033[0m\n')
         op_menu = input("    Please enter the number: ")
         if op_menu == '0':
             os.chdir(LOCALDIR)
@@ -672,11 +672,11 @@ class Tool:
 
     def custom_rom(self):
         cls()
-        print(" \033[31m>定制菜单 \033[0m\n")
-        print(f"  项目：{self.pro}\n")
-        print('\033[33m    0> 返回上级  1> 面具修补\033[0m\n')
-        print('\033[33m    2> 去除avb   3> 去除data加密\033[0m\n')
-        op_menu = input("    请输入编号: ")
+        print(" \033[31m>Other Tools \033[0m\n")
+        print(f"  Project: {self.pro}\n")
+        print('\033[33m    0> Previous Menu  1> Magisk Patcher\033[0m\n')
+        print('\033[33m    2> Disable avb(fstab)   3> Disable data_encryption(fstab)\033[0m\n')
+        op_menu = input("    Please enter the number: ")
         if op_menu == '0':
             return
         elif op_menu == '1':
@@ -693,7 +693,7 @@ class Tool:
                         self.dis_data_encryption(os.path.join(root, file))
         else:
             ywarn('   Input error!')
-        input("任意按钮继续")
+        input("Enter to continue")
         self.custom_rom()
 
     def magisk_patch(self):
@@ -701,9 +701,9 @@ class Tool:
         cs = 0
         project = LOCALDIR + os.sep + self.pro
         os.chdir(LOCALDIR)
-        print(" \n\033[31m>面具修补 \033[0m\n")
-        print(f"  项目：{self.pro}\n")
-        print(f"  请将要修补的镜像放入{project}")
+        print(" \n\033[31m>Magisk Patcher \033[0m\n")
+        print(f"  Project: {self.pro}\n")
+        print(f"  Please place the image to be patched in {project}")
         boots = {}
         for i in os.listdir(project):
             if os.path.isdir(os.path.join(project, i)):
@@ -713,10 +713,10 @@ class Tool:
                 boots[str(cs)] = os.path.join(project, i)
                 print(f'  [{cs}]--{i}')
         print("\033[33m-------------------------------\033[0m")
-        print("\033[33m    [00] 返回\033[0m\n")
-        op_menu = input("    请输入编号: ")
+        print("\033[33m    [00] Return\033[0m\n")
+        op_menu = input("    Please enter the number: ")
         if op_menu in boots.keys():
-            mapk = input("    请输入Magisk.apk路径:")
+            mapk = input("    Enter the Magisk.apk path:")
             if not os.path.isfile(mapk):
                 ywarn('Input Error!')
             else:
@@ -726,26 +726,26 @@ class Tool:
                     out = os.path.join(project, "boot_patched.img")
                     shutil.move(os.path.join(LOCALDIR, 'new-boot.img'), out)
                     LOGS(f"Moved to:{out}")
-                    LOGS("修补完成")
+                    LOGS("Patched Successful")
                 else:
-                    LOGE("修补失败")
+                    LOGE("Patched Fail")
         elif op_menu == '00':
             os.chdir(project)
             return
         else:
             ywarn('Input Error!')
-        input("任意按钮继续")
+        input("Enter to continue")
         self.magisk_patch()
 
     def hczip(self):
         cls()
         project = LOCALDIR + os.sep + self.pro
-        print(" \033[31m>打包ROM \033[0m\n")
-        print(f"  项目：{os.path.basename(project)}\n")
-        print('\033[33m    1> 直接打包     2> 卡线一体 \n    3> 返回\033[0m\n')
-        chose = input("    请输入编号: ")
+        print(" \033[31m>Pack ROM \033[0m\n")
+        print(f"  Project: {os.path.basename(project)}\n")
+        print('\033[33m    1> Pack Directly     2> Pack Hybrid Rom \n    3> Return\033[0m\n')
+        chose = input("    Please enter the number: ")
         if chose == '1':
-            print("正在准备打包...")
+            print("Preparing For Packing...")
             for v in ['firmware-update', 'META-INF', 'exaid.img', 'dynamic_partitions_op_list']:
                 if os.path.isdir(os.path.join(project, v)):
                     if not os.path.isdir(os.path.join(project, 'TI_out' + os.sep + v)):
@@ -760,7 +760,7 @@ class Tool:
                                 os.path.join(project, f), os.F_OK):
                             shutil.copy(os.path.join(project, str(f)), os.path.join(project, 'TI_out'))
         elif chose == '2':
-            utils.dbkxyt(os.path.join(project, 'TI_out') + os.sep, input("打包卡线一体限制机型代号:"),
+            utils.dbkxyt(os.path.join(project, 'TI_out') + os.sep, input("Device Code:"),
                          binner + os.sep + 'extra_flash.zip')
         else:
             return
@@ -783,7 +783,7 @@ class Tool:
         else:
             ywarn("	没有ROM文件！")
         print("--------------------------------------------------\n")
-        zipd = input("请输入对应序列号：")
+        zipd = input("Please Enter:")
         if zipd.isdigit():
             if int(zipd) in zips.keys():
                 projec = input("请输入项目名称(可留空)：")
