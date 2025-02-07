@@ -17,5 +17,6 @@
     "online": "true",
     "erofs_old_kernel": "0",
     "context": "false",
+    "language": "Chinese",
     "version": "5.121"
 }
