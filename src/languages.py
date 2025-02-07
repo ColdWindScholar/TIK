@@ -14,6 +14,10 @@ Chinese:dict = {
     "No updates found for your device, please go to https://github.com/ColdWindScholar/TIK update it yourself":"未发现适用于您设备的更新，请前往https://github.com/ColdWindScholar/TIK下载源代码自行更新",
     "Update it?[1/0]":"是否更新?[1/0]",
     "Downloading...":"正在下载新版本...",
-    "Download error, please try again later":"下载错误，请稍后重试"
+    "Download error, please try again later":"下载错误，请稍后重试",
+    "Starting update, please do not close the tool...":"开始更新，请不要关闭工具...",
+    "The update file is damaged and cannot be updated":"更新文件损坏， 无法更新",
+    "Update completed, any button to start a new program...":"更新完毕, 任意按钮启动新程序...",
+    "You are using the latest version! Any button returns！":"你正在使用最新版本！任意按钮返回！"
 
 }
