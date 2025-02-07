@@ -2,24 +2,23 @@ from __future__ import print_function
 
 import errno
 import os
+import platform as plat
 import struct
 import subprocess
 import sys
 import tempfile
 import zipfile
+from os import getcwd
 from os.path import exists
 from random import randint, choice
 from shutil import move, rmtree
 from threading import Thread
 
-import zstandard
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
 
 import blockimgdiff
 import sparse_img
-from os import getcwd
-import platform as plat
 import update_metadata_pb2 as um
 from lpunpack import SparseImage
 

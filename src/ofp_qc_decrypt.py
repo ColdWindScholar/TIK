@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
 # (c) B.Kerler 2018-2021, MIT license
+import hashlib
 import os
-import sys
 import xml.etree.ElementTree as ET
 import zipfile
+from binascii import hexlify
 from struct import unpack
-from binascii import unhexlify, hexlify
+
 from Crypto.Cipher import AES
 from Crypto.Hash import MD5
-import hashlib
-import shutil
 
 
 def swap(ch):
