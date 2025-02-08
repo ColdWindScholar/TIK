@@ -164,19 +164,43 @@ class Welcome:
         else:
             self.step = step
         self.steps = {
-            0: self.welcome
+            0: self.welcome,
+            1: self.language
         }
-        self.change_page(self.step)
-    def change_page(self, step):
+        self.change_page()
+
+    def change_page(self):
         cls()
-        page = self.steps.get(step, 0)
-        settings.change('oobe', str(step))
-        page()
+        for step in self.steps:
+            if step < self.step:
+                continue
+            page = self.steps.get(step, 0)
+            settings.change('oobe', str(step))
+            print(f"\033[34m {banner.banner1} \033[0m")
+            page()
+        return
 
     def welcome(self):
-        print("\033[33mHello! Welcome to \033[0m")
-        print(f"\033[34m {banner.banner1} \033[0m")
-        input("\033[32 Enter to continue. \033[0m")
+        print("\033[33mHello! Welcome to TIK5!\033[0m")
+        input("\033[32m Enter to continue. \033[0m")
+
+    def language(self):
+        language_list = {index + 1: lan for index, lan in enumerate(dir(languages)) if
+                         lan != 'default' and not lan.startswith("_") and not lan.endswith('_')}
+        for index, lan in language_list.items():
+            print(f'{index} >{lan}')
+        input_value = "None"
+        while not input_value.isdigit():
+            input_value = input("Select Your Language:")
+            try:
+                int(input_value)
+            except Exception:
+                continue
+        input_value = int(input_value)
+        language = language_list.get(input_value, languages.default)
+        settings.change('language', language)
+
+
 
 class set_utils:
     def __init__(self, path):
@@ -225,7 +249,7 @@ class set_utils:
 
 settings = set_utils(setfile)
 settings.load_set()
-if int(settings.oobe) < 3:
+if int(settings.oobe) < 1:
     Welcome(step=int(settings.oobe))
 
 class upgrade:
