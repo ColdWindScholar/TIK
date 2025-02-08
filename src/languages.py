@@ -245,6 +245,7 @@ Chinese:dict = {
     "Brotli Level":"Brotli 压缩等级",
     "EXT4 Settings":"EXT4设置",
     "Size Handle":"大小处理",
+    "Well Done!":"干得漂亮！",
     "Packing Method":"打包方式",
     "EROFS Settings":"EROFS设置",
     "Packing Format":"压缩方式",

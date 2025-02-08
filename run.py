@@ -165,7 +165,8 @@ class Welcome:
             self.step = step
         self.steps = {
             0: self.welcome,
-            1: self.language
+            1: self.language,
+            2: self.done
         }
         self.change_page()
 
@@ -188,10 +189,10 @@ class Welcome:
         language_list = {index + 1: lan for index, lan in enumerate(dir(languages)) if
                          lan != 'default' and not lan.startswith("_") and not lan.endswith('_')}
         for index, lan in language_list.items():
-            print(f'{index} >{lan}')
+            print(f'{index} >\033[93m{lan}\033[0m')
         input_value = "None"
         while not input_value.isdigit():
-            input_value = input("Select Your Language:")
+            input_value = input("\033[94mSelect Your Language:\033[0m")
             try:
                 int(input_value)
             except Exception:
@@ -199,6 +200,10 @@ class Welcome:
         input_value = int(input_value)
         language = language_list.get(input_value, languages.default)
         settings.change('language', language)
+
+    def done(self):
+        input("Well Done! Let's Try New Tik!")
+
 
 
 
@@ -249,7 +254,7 @@ class set_utils:
 
 settings = set_utils(setfile)
 settings.load_set()
-if int(settings.oobe) < 1:
+if int(settings.oobe) < 2:
     Welcome(step=int(settings.oobe))
 
 class upgrade:
