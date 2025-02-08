@@ -176,6 +176,7 @@ class Welcome:
             if step < self.step:
                 continue
             page = self.steps.get(step, 0)
+            cls()
             settings.change('oobe', str(step))
             print(f"\033[34m {banner.banner1} \033[0m")
             page()
