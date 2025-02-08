@@ -17,23 +17,11 @@ jobs:
       - uses: actions/download-artifact@v3
       - name: Rename Tool
         run: |
-          cd TIK-win-cn
-          move ./TIK-win.zip ../TIK-5-${{ github.run_number }}-Chinese-win.zip
+          cd TIK-win
+          move ./TIK-win.zip ../TIK-5-${{ github.run_number }}-win.zip
           cd ..
-          cd TIK-linux-cn
-          move ./TIK-linux.zip ../TIK-5-${{ github.run_number }}-Chinese-linux.zip
-          cd ..
-          cd TIK-win-ru
-          move ./TIK-win.zip ../TIK-5-${{ github.run_number }}-Russian-win.zip
-          cd ..
-          cd TIK-linux-ru
-          move ./TIK-linux.zip ../TIK-5-${{ github.run_number }}-Russian-linux.zip
-          cd ..
-          cd TIK-win-en
-          move ./TIK-win.zip ../TIK-5-${{ github.run_number }}-English-win.zip
-          cd ..
-          cd TIK-linux-en
-          move ./TIK-linux.zip ../TIK-5-${{ github.run_number }}-English-linux.zip
+          cd TIK-linux
+          move ./TIK-linux.zip ../TIK-5-${{ github.run_number }}-linux.zip
           cd ..
       - name: Upload release
         uses: ncipollo/release-action@v1
@@ -66,41 +54,16 @@ jobs:
       # You can test your matrix by printing the current Python version
       - name: Update pip
         run:  python -m pip install -U --force-reinstall pip
-      - name: Build tool (Chinese)
+      - name: Build tool
         run: |
              python build.py
       - name: Upload Win Build
         if: success()
         uses: actions/upload-artifact@v3
         with:
-          name: TIK-win-cn
+          name: TIK-win
           path: './TIK-win.zip'
-      - name: Build tool (English)
-        run: |
-          del ./TIK-win.zip
-          del ./run.py
-          del ./run.exe
-          move ./run_english.py ./run.py
-          python build.py
-      - name: Upload Win Build
-        if: success()
-        uses: actions/upload-artifact@v3
-        with:
-          name: TIK-win-en
-          path: './TIK-win.zip'
-      - name: Build tool (Russian)
-        run: |
-          del ./TIK-win.zip
-          del ./run.py
-          del ./run.exe
-          move ./run_russian.py ./run.py
-          python build.py
-      - name: Upload Win Build
-        if: success()
-        uses: actions/upload-artifact@v3
-        with:
-          name: TIK-win-ru
-          path: './TIK-win.zip'
+
   build-linux:
     runs-on: ubuntu-20.04
     steps:
@@ -115,41 +78,13 @@ jobs:
         run: |
             python3 -m pip install -U --force-reinstall pip
             sudo apt update -y && sudo apt install python3-tk -y
-      - name: Build Tool (Chinese)
+      - name: Build Tool
         run: |
              python3 build.py
       - name: Upload Linux Build
         if: success()
         uses: actions/upload-artifact@v3
         with:
-          name: TIK-linux-cn
+          name: TIK-linux
           path: './TIK-linux.zip'
 
-      - name: Build Tool (English)
-        run: |
-          ls
-          rm -rf TIK-linux.zip
-          rm -rf run.py
-          rm -rf run
-          mv run_english.py run.py
-          python3 build.py
-      - name: Upload Linux Build
-        if: success()
-        uses: actions/upload-artifact@v3
-        with:
-          name: TIK-linux-en
-          path: './TIK-linux.zip'
-
-      - name: Build Tool (Russian)
-        run: |
-          rm -rf TIK-linux.zip
-          rm -rf run.py
-          rm -rf run
-          mv run_russian.py run.py
-          python3 build.py
-      - name: Upload Linux Build
-        if: success()
-        uses: actions/upload-artifact@v3
-        with:
-          name: TIK-linux-ru
-          path: './TIK-linux.zip'
