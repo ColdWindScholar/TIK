@@ -392,7 +392,7 @@ class setting:
         elif op_pro == '3':
             settings.change('context', 'false' if settings.context == 'true' else 'true')
         elif op_pro == '4':
-            language_list = {index:lan for index, lan in enumerate(dir(languages)) if lan != 'default' and not lan.startswith("_") and not lan.endswith('_')}
+            language_list = {index+1:lan for index, lan in enumerate(dir(languages)) if lan != 'default' and not lan.startswith("_") and not lan.endswith('_')}
             print("Select Your Language:")
             for index, lan in language_list.items():
                 print(f'{index}>{lan}')
