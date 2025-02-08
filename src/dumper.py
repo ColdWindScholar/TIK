@@ -1,4 +1,17 @@
 #!/usr/bin/env python
+# Copyright (C) 2022-2025 The MIO-KITCHEN-SOURCE Project
+#
+# Licensed under the GNU AFFERO GENERAL PUBLIC LICENSE, Version 3.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      https://www.gnu.org/licenses/agpl-3.0.en.html#license-text
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 import bz2
 import lzma
 import struct
@@ -13,13 +26,8 @@ from . import update_metadata_pb2 as um
 
 flatten = lambda l: [item for sublist in l for item in sublist]
 
-
-def u32(x):
-    return struct.unpack(">I", x)[0]
-
-
-def u64(x):
-    return struct.unpack(">Q", x)[0]
+u32 = lambda x:struct.unpack(">I", x)[0]
+u64 = lambda x:struct.unpack(">Q", x)[0]
 
 
 class Dumper:
@@ -124,6 +132,10 @@ class Dumper:
 
         # assert hashlib.sha256(data).digest() == op.data_sha256_hash, 'operation data hash mismatch'
         op_type = op.type
+        if op.type == op.REPLACE_ZSTD:
+            if payloadfile.read(4) != b'(\xb5/\xfd':
+                op_type = op.REPLACE
+            payloadfile.seek(payloadfile.tell() - 4)
         if op_type == op.REPLACE_ZSTD:
             dec = zstandard.ZstdDecompressor().decompressobj()
             while processed_len < data_length:
@@ -159,9 +171,9 @@ class Dumper:
         elif op_type == op.REPLACE:
             out_file.seek(op.dst_extents[0].start_block * self.block_size)
             while processed_len < data_length:
-                    data = payloadfile.read(buffsize)
-                    processed_len += len(data)
-                    out_file.write(data)
+                data = payloadfile.read(buffsize)
+                processed_len += len(data)
+                out_file.write(data)
 
         elif op_type == op.SOURCE_COPY:
             if not self.diff:
