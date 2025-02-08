@@ -21,6 +21,7 @@ from src.Magisk import Magisk_patch
 import os
 from src.dumper import Dumper
 import builtins
+
 if os.name == 'nt':
     import ctypes
 
@@ -155,6 +156,28 @@ except (Exception, BaseException):
 
 sys_stdout_write_ = sys.stdout.write
 input_old = builtins.input
+
+class Welcome:
+    def __init__(self, step:int=None):
+        if step is None:
+            self.step = 0
+        else:
+            self.step = step
+        self.steps = {
+            0: self.welcome
+        }
+        self.change_page(self.step)
+    def change_page(self, step):
+        cls()
+        page = self.steps.get(step, 0)
+        settings.change('oobe', str(step))
+        page()
+
+    def welcome(self):
+        print("\033[33mHello! Welcome to \033[0m")
+        print(f"\033[34m {banner.banner1} \033[0m")
+        input("\033[32 Enter to continue. \033[0m")
+
 class set_utils:
     def __init__(self, path):
         self.path = path
@@ -166,15 +189,18 @@ class set_utils:
             [setattr(self, v, data[v]) for v in data]
         if hasattr(languages, settings.language):
             self.language_dict = getattr(languages, settings.language)
-        def sys_stdout_write(s:str):
+
+        def sys_stdout_write(s: str):
             t = self.language_dict.get(s, s)
-            if s != t :s = t
+            if s != t:
+                s = t
             else:
                 for i in self.language_dict:
                     if i in s:
                         s = s.replace(i, self.language_dict.get(i, i))
 
             sys_stdout_write_(s)
+
         def new_input(prompt: object = ''):
             t = self.language_dict.get(prompt, prompt)
             if prompt != t:
@@ -199,7 +225,8 @@ class set_utils:
 
 settings = set_utils(setfile)
 settings.load_set()
-
+if int(settings.oobe) < 3:
+    Welcome(step=int(settings.oobe))
 
 class upgrade:
     update_json = 'https://mirror.ghproxy.com/https://raw.githubusercontent.com/ColdWindScholar/Upgrade/main/TIK.json'
@@ -222,14 +249,17 @@ class upgrade:
                 print(
                     f"\033[0;32;40mNew Version：\033[0m\033[0;36;40m{settings.version} --> {data.get('version')}\033[0m")
                 print(f"\033[0;32;40mChangeLog：\n\033[0m\033[0;36;40m{data.get('log', '1.Fix Some Bugs')}\033[0m")
-                input("Please note that the builds in the communication group and release are always the latest development environment version. This feature is only used to detect recent stable builds")
+                input(
+                    "Please note that the builds in the communication group and release are always the latest development environment version. This feature is only used to detect recent stable builds")
                 try:
                     link = data['link'][plat.system()][plat.machine()]
                 except (Exception, BaseException):
-                    input("No updates found for your device, please go to https://github.com/ColdWindScholar/TIK update it yourself")
+                    input(
+                        "No updates found for your device, please go to https://github.com/ColdWindScholar/TIK update it yourself")
                     return
                 if not link:
-                    input("No updates found for your device, please go to https://github.com/ColdWindScholar/TIK update it yourself")
+                    input(
+                        "No updates found for your device, please go to https://github.com/ColdWindScholar/TIK update it yourself")
                     return
                 if input("\033[0;33;40mUpdate it?[1/0]\033[0m") == '1':
                     print("Downloading...")
@@ -270,10 +300,13 @@ class upgrade:
                 return
 
 
+
+
 class setting:
     def settings1(self):
         actions = {
-            "1": lambda: settings.change('brcom', brcom if (brcom := input("  Adjust the brotli compression level (integers 1-9):")).isdigit() and 0 < int(
+            "1": lambda: settings.change('brcom', brcom if (brcom := input(
+                "  Adjust the brotli compression level (integers 1-9):")).isdigit() and 0 < int(
                 brcom) < 10 else '1'),
             "2": lambda: settings.change('diysize',
                                          "1" if input("  Package Ext image size: [1]Auto [2]Origin:") == '2' else ''),
@@ -282,7 +315,8 @@ class setting:
             "6": lambda: settings.change('pack_sparse', '1' if input(
                 "  Pack to Sparse:[1/0]:") == '1' else "0"),
             "7": lambda: settings.change('diyimgtype',
-                                         '1' if input(f"  Packaging Image Format [1]Origin [2]Selectable:") == '2' else ''),
+                                         '1' if input(
+                                             f"  Packaging Image Format [1]Origin [2]Selectable:") == '2' else ''),
             "8": lambda: settings.change('erofs_old_kernel',
                                          '1' if input(f"  EROFS Support old Kernel[1/0]") == '1' else '0')
         }
@@ -331,16 +365,21 @@ class setting:
             '1': lambda: settings.change('super_group', super_group if (
                 super_group := input(f"  Enter:")) else "qti_dynamic_partitions"),
             '2': lambda: settings.change('metadatasize', metadatasize if (
-                metadatasize := input("  Set the maximum reserved size for metadata (default to 65536, at least 512):")) else '65536'),
+                metadatasize := input(
+                    "  Set the maximum reserved size for metadata (default to 65536, at least 512):")) else '65536'),
             '3': lambda: settings.change('BLOCKSIZE', BLOCKSIZE if (
-                BLOCKSIZE := input(f"  Partition packaging sector/block size:：{settings.BLOCKSIZE}\n  Enter: ")) else "4096"),
+                BLOCKSIZE := input(
+                    f"  Partition packaging sector/block size:：{settings.BLOCKSIZE}\n  Enter: ")) else "4096"),
             '4': lambda: settings.change('BLOCKSIZE', SBLOCKSIZE if (
-                SBLOCKSIZE := input(f"  Partition packaging sector/block size:{settings.SBLOCKSIZE}\n  Enter: ")) else "4096"),
+                SBLOCKSIZE := input(
+                    f"  Partition packaging sector/block size:{settings.SBLOCKSIZE}\n  Enter: ")) else "4096"),
             '5': lambda: settings.change('supername', supername if (supername := input(
                 f'  Current dynamic partition physical partition name (default super):{settings.supername}\n  Enter: ')) else "super"),
-            '6': lambda: settings.change('fullsuper', '' if input("  Do you want to force the creation of Super images?[1/0]") != '1' else '-F'),
+            '6': lambda: settings.change('fullsuper', '' if input(
+                "  Do you want to force the creation of Super images?[1/0]") != '1' else '-F'),
             '7': lambda: settings.change('autoslotsuffixing',
-                                         '' if input("  Mark partitions that require a Slot suffix?[1/0]") != '1' else '-x')
+                                         '' if input(
+                                             "  Mark partitions that require a Slot suffix?[1/0]") != '1' else '-x')
         }
         print(f'''
         \033[33m  > Dynamic partition settings \033[0m
@@ -392,7 +431,8 @@ class setting:
         elif op_pro == '3':
             settings.change('context', 'false' if settings.context == 'true' else 'true')
         elif op_pro == '4':
-            language_list = {index+1:lan for index, lan in enumerate(dir(languages)) if lan != 'default' and not lan.startswith("_") and not lan.endswith('_')}
+            language_list = {index + 1: lan for index, lan in enumerate(dir(languages)) if
+                             lan != 'default' and not lan.startswith("_") and not lan.endswith('_')}
             print("Select Your Language:")
             for index, lan in language_list.items():
                 print(f'{index}>{lan}')
@@ -822,7 +862,8 @@ class zip_file:
         os.chdir(dst_dir)
         relpath = str(path + file)
         if os.path.exists(relpath):
-            ywarn(f"A file with the same name exists:{file}，Automatically renamed to {(relpath := path + utils.v_code() + file)}")
+            ywarn(
+                f"A file with the same name exists:{file}，Automatically renamed to {(relpath := path + utils.v_code() + file)}")
         with zipfile.ZipFile(relpath, 'w', compression=zipfile.ZIP_DEFLATED,
                              allowZip64=True) as zip_:
             # 遍历写入文件
@@ -1023,7 +1064,8 @@ class unmpk:
             print(f"Uninstalling:{name}")
             if os.path.exists(self.moddir + os.sep + name):
                 shutil.rmtree(self.moddir + os.sep + name)
-            ywarn(f"Uninstall {name} Fail！") if os.path.exists(self.moddir + os.sep + name) else yecho(f"卸载{name}成功！")
+            ywarn(f"Uninstall {name} Fail！") if os.path.exists(self.moddir + os.sep + name) else yecho(
+                f"卸载{name}成功！")
 
 
 def unpack_choo(project):
@@ -1373,7 +1415,8 @@ def unpackboot(file, project):
         if comp != "unknow":
             os.rename(project + os.sep + name + os.sep + "ramdisk.cpio",
                       project + os.sep + name + os.sep + "ramdisk.cpio.comp")
-            if call(["magiskboot", "decompress", f"{project}/{name}/ramdisk.cpio.comp", f"{project}/{name}/ramdisk.cpio"]) != 0:
+            if call(["magiskboot", "decompress", f"{project}/{name}/ramdisk.cpio.comp",
+                     f"{project}/{name}/ramdisk.cpio"]) != 0:
                 print("Decompress Ramdisk Fail...")
                 return
         if not os.path.exists(project + os.sep + name + os.sep + "ramdisk"):
@@ -1444,7 +1487,7 @@ def undtbo(project, infile):
         if dtbo_file.startswith('dtbo.'):
             dts_files = dtbo_file.replace("dtbo", 'dts')
             yecho(f"Decompiling{dtbo_file}to{dts_files}")
-            dtbofiles = dtbodir +  "/dtbo_files/" + dtbo_file
+            dtbofiles = dtbodir + "/dtbo_files/" + dtbo_file
             if call(['dtc', '-@', '-I', 'dtb', '-O', 'dts', dtbofiles, '-o', f"{dtbodir}/dts_files/{dts_files}"],
                     out=1) != 0:
                 ywarn(f"Decompiling {dtbo_file} Fail！")
@@ -1517,27 +1560,35 @@ def inpacker(name, project, form, ftype, json_=None):
     if ftype == 'erofs':
         other_ = ['-E', 'legacy-compress'] if settings.erofs_old_kernel == '1' else []
         call(
-            ['mkfs.erofs', *other_, f'-z{settings.erofslim}', '-T', f'{utc}', f'--mount-point=/{name}', f'--fs-config-file={fs_config}', f'--product-out={os.path.dirname(out_img)}', f'--file-contexts={file_contexts}', out_img, in_files])
+            ['mkfs.erofs', *other_, f'-z{settings.erofslim}', '-T', f'{utc}', f'--mount-point=/{name}',
+             f'--fs-config-file={fs_config}', f'--product-out={os.path.dirname(out_img)}',
+             f'--file-contexts={file_contexts}', out_img, in_files])
     elif ftype == 'f2fs':
         size_f2fs = (54 * 1024 * 1024) + img_size1
-        size_f2fs = int(size_f2fs*1.15)+1
+        size_f2fs = int(size_f2fs * 1.15) + 1
         with open(out_img, 'wb') as f:
             f.truncate(size_f2fs)
-        call(['mkfs.f2fs', out_img, '-O', 'extra_attr', '-O', 'inode_checksum', '-O', 'sb_checksum', '-O', 'compression', '-f'])
+        call(
+            ['mkfs.f2fs', out_img, '-O', 'extra_attr', '-O', 'inode_checksum', '-O', 'sb_checksum', '-O', 'compression',
+             '-f'])
         call(['sload.f2fs', '-f', in_files, '-C', fs_config, '-s', file_contexts, '-t', f'/{name}', out_img, '-c'])
     else:
         if os.path.exists(file_contexts):
             if settings.pack_e2 == '0':
                 call(
-                    ['make_ext4fs', '-J', '-T', f'{utc}', '-S', file_contexts, '-l', f'{img_size0}', '-C', fs_config, '-L', name, '-a', name, out_img, in_files])
+                    ['make_ext4fs', '-J', '-T', f'{utc}', '-S', file_contexts, '-l', f'{img_size0}', '-C', fs_config,
+                     '-L', name, '-a', name, out_img, in_files])
             else:
                 call(
-                    ['mke2fs', '-O', '^has_journal', '-L', name, '-I', '256', '-M', f'/{name}', '-m', '0', '-t', 'ext4', '-b', f'{settings.BLOCKSIZE}', out_img, f'{size}'])
+                    ['mke2fs', '-O', '^has_journal', '-L', name, '-I', '256', '-M', f'/{name}', '-m', '0', '-t', 'ext4',
+                     '-b', f'{settings.BLOCKSIZE}', out_img, f'{size}'])
                 call(
-                    ['e2fsdroid', '-e', '-T', f'{utc}', '-S', file_contexts, '-C', fs_config, '-a', f'/{name}', '-f', in_files, out_img])
+                    ['e2fsdroid', '-e', '-T', f'{utc}', '-S', file_contexts, '-C', fs_config, '-a', f'/{name}', '-f',
+                     in_files, out_img])
         else:
             call(
-                ['make_ext4fs', '-J', '-T', f'{utc}', '-l', f'{img_size0}', '-C', fs_config, '-L', name, '-a', name, out_img, in_files])
+                ['make_ext4fs', '-J', '-T', f'{utc}', '-l', f'{img_size0}', '-C', fs_config, '-L', name, '-a', name,
+                 out_img, in_files])
     if settings.pack_sparse == '1' or form in ['dat', 'br']:
         call(["img2simg", out_img, f"{out_img}.s"])
         os.remove(out_img)
@@ -1548,7 +1599,7 @@ def inpacker(name, project, form, ftype, json_=None):
         yecho(f"Packing [DAT]:{name}")
         rdi(name)
         try:
-            os.remove(project + "/TI_out/"  + name + ".patch.dat")
+            os.remove(project + "/TI_out/" + name + ".patch.dat")
         except (Exception, BaseException):
             ...
         utils.img2sdat(out_img, project + "/TI_out", int(json_.get('dat_ver', '4')), name)
@@ -1559,7 +1610,8 @@ def inpacker(name, project, form, ftype, json_=None):
     if form == 'br':
         yecho(f"Packing [BR]:{name}")
         call(
-            ['brotli', '-q', f'{settings.brcom}', '-j', '-w', '24', f"{project}/TI_out/{name}.new.dat", '-o', f"{project}/TI_out/{name}.new.dat.br"])
+            ['brotli', '-q', f'{settings.brcom}', '-j', '-w', '24', f"{project}/TI_out/{name}.new.dat", '-o',
+             f"{project}/TI_out/{name}.new.dat.br"])
 
 
 def versize(size):
@@ -1595,7 +1647,8 @@ def packsuper(project):
     isreadonly = input("Whether Set Attrib to Readonly?[1/0]")
     ifsparse = input("Whether to package as sparse image？[1/0]")
     if not os.listdir(project + os.sep + 'super'):
-        print("It seems that you do not have any partitions to package. \nDo you want to move the following partitions for packaging：")
+        print(
+            "It seems that you do not have any partitions to package. \nDo you want to move the following partitions for packaging：")
         move_list = []
         for i in os.listdir(project + os.sep + 'TI_out'):
             if os.path.isfile(os.path.join(project + os.sep + 'TI_out', i)):
@@ -1627,6 +1680,7 @@ def packsuper(project):
     insuper(project + os.sep + 'super', project + os.sep + 'TI_out' + os.sep + "super.img", supersize, supertype,
             ifsparse, isreadonly)
 
+
 # Fixme:Rewrite it.
 def insuper(Imgdir, outputimg, ssize, stype, sparsev, isreadonly):
     attr = "readonly" if isreadonly == '1' else "none"
@@ -1638,7 +1692,7 @@ def insuper(Imgdir, outputimg, ssize, stype, sparsev, isreadonly):
             file_path = os.path.join(root, file)
             if os.path.isfile(file_path) and os.path.getsize(file_path) == 0:
                 os.remove(file_path)
-    superpa = ['lpmake','--metadata-size', f'{settings.metadatasize}', '--super-name', f'{settings.supername}']
+    superpa = ['lpmake', '--metadata-size', f'{settings.metadatasize}', '--super-name', f'{settings.supername}']
     if sparsev == '1':
         superpa.append('--sparse')
     if stype == 'VAB':
@@ -1720,20 +1774,21 @@ def packpayload(project):
         print(f"Unsupported:{ostype},Only Support:Linux(aarch64&x86)")
         input("Enter to continue")
         return
-    if os.path.exists(project +'/payload'):
+    if os.path.exists(project + '/payload'):
         if input('Discovered residual Payload from previous packaging, empty it?[1/0]') == '1':
             re_folder(project + '/payload')
-            re_folder(project + '/TI_out/' +  "payload")
+            re_folder(project + '/TI_out/' + "payload")
             f_remove(f"{project}/TI_out/payload/dynamic_partitions_info.txt")
     else:
         os.makedirs(project + '/payload')
     ywarn(f"Please place all partition images on {project}payload！")
     yecho("这项功能很耗时、很费CPU、很费内存，若无官方签名则意义不大，请考虑后使用")
-    if not os.listdir(project +  '/payload'):
-        print("It seems that you do not have any partitions to package. Do you want to move the following partitions for packaging：")
+    if not os.listdir(project + '/payload'):
+        print(
+            "It seems that you do not have any partitions to package. Do you want to move the following partitions for packaging：")
         move_list = []
-        for i in os.listdir(project +  '/TI_out'):
-            if os.path.isfile(os.path.join(project +  '/TI_out', i)):
+        for i in os.listdir(project + '/TI_out'):
+            if os.path.isfile(os.path.join(project + '/TI_out', i)):
                 if i.endswith('.img'):
                     move_list.append(i)
         print("\n".join(move_list))
@@ -1784,7 +1839,8 @@ def inpayload(supersize, project):
         input("NOT Create Payload.")
     else:
         LOGS("Done!") if call(
-            ['delta_generator', f'--in_file={out}', f'--properties_file={project}/config/payload_properties.txt']) == 0 else LOGE(
+            ['delta_generator', f'--in_file={out}',
+             f'--properties_file={project}/config/payload_properties.txt']) == 0 else LOGE(
             "Fail！")
 
 
