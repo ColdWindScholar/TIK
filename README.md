@@ -52,7 +52,11 @@ Note: WSL 可能存在权限出错的问题 请自行判断测试！
 9. [context_patch](https://github.com/ColdWindScholar/context_patch)
 10. [erofs-utils](https://github.com/sekaiacg/erofs-utils/)
 11. [Magisk_Patch_Python](https://github.com/ColdWindScholar/Magisk_Patch_Python)
-12. And More...
+12. [erofs-utils](https://github.com/sekaiacg/erofs-utils)
+13. [zstd](https://github.com/facebook/zstd)
+14. [BusyBox for Windows](https://frippery.org/busybox/)
+15. [busybox](https://busybox.net/)
+16. And More...
 #### **合作伙伴**
 1. Sakura
 2. Affggh
