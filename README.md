@@ -42,19 +42,18 @@
 Note: WSL 可能存在权限出错的问题 请自行判断测试！
 #### **引用项目**
 1. [Android SDK platform-tools](https://developer.android.com/studio/releases/platform-tools)
-2. [ApkParse](https://github.com/zxvzxv/ApkParse/)
+2. [ApkParse](https://github.com/zxvzxv/ApkParse)
 3. [brotli](https://github.com/google/brotli)
-4. [BusyBox for Windows](https://frippery.org/busybox/)
-5. [busybox](https://busybox.net/)
+4. [BusyBox for Windows](https://frippery.org/busybox)
+5. [busybox](https://busybox.net)
 6. [context_patch](https://github.com/ColdWindScholar/context_patch)
 7. [erofs-utils](https://github.com/sekaiacg/erofs-utils)
-8. [erofs-utils](https://github.com/sekaiacg/erofs-utils/)
 9. [img2sdat](https://github.com/xpirt/img2sdat)
 10. [lpunpack](https://github.com/unix3dgforce/lpunpack)
 11. [Magisk_Patch_Python](https://github.com/ColdWindScholar/Magisk_Patch_Python)
 12. [make_ext4fs](https://github.com/jamflux/make_ext4fs)
 13. [oppo_decrypt](https://github.com/bkerler/oppo_decrypt)
-14. [rich](https://github.com/Textualize/rich/)
+14. [rich](https://github.com/Textualize/rich)
 15. [sdat2img](https://github.com/xpirt/sdat2img)
 16. [zstd](https://github.com/facebook/zstd)
 17. And More...
