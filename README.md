@@ -1,5 +1,9 @@
 ##  TIK
 ####  **介绍** 
+
+> [!CAUTION]
+> # [你的手机很快就不再属于你。](https://keepandroidopen.org/)
+
 ***
 > [!CAUTION]
 > 此项目非发布在gitcode， 如果您在gitcode发现此项目，请联系我们并保留截图证据
