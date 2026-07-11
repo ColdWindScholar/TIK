@@ -2,7 +2,7 @@
 ####  **介绍** 
 
 > [!CAUTION]
-> # [你的手机很快就不再属于你。](https://keepandroidopen.org/)
+> # [你的手机很快就不再属于你。保持安卓开放！](https://keepandroidopen.org/)
 
 ***
 > [!CAUTION]
