@@ -48,7 +48,9 @@ def zip_folder(folder_path):
 
 
 import PyInstaller.__main__
-
+with open("src/version.py", "w") as f:
+    version = os.getenv('GITHUB_RUN_NUMBER') or os.getenv("USER") + "@local"
+    f.write(f"tool_version = '5.{version}'")
 PyInstaller.__main__.run(['-F', 'run.py', '--exclude-module=numpy', '-i', 'icon.ico'])
 
 if os.name == 'nt':
