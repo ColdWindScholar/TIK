@@ -1,0 +1,316 @@
+#!/bin/python3
+# pylint: disable=line-too-long, missing-class-docstring, missing-function-docstring
+# Copyright (C) 2022-2026 The MIO-KITCHEN-SOURCE Project
+#
+# Licensed under the GNU AFFERO GENERAL PUBLIC LICENSE, Version 3.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      https://www.gnu.org/licenses/agpl-3.0.en.html#license-text
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+import argparse
+import os
+import platform
+import zipfile
+from functools import wraps
+from sys import exit
+from time import strftime, time
+import json
+import requests
+import warnings
+import re
+
+warnings.warn = lambda *args: ...
+temp = 'bin/temp'
+tool_bin = os.path.join('bin', platform.system(), platform.machine())
+update_info = 'bin/update.json'
+LOGE = lambda info: print('[%s] \033[91m[ERROR]\033[0m%s' % (strftime('%H:%M:%S'), info))
+LOGS = lambda info: print('[%s] \033[92m[SUCCESS]\033[0m%s' % (strftime('%H:%M:%S'), info))
+green = lambda info: print(f"\033[32m[{strftime('%H:%M:%S')}]{info}\033[0m")
+# 青
+green_1 = lambda info, end=None: print(f"\033[36m[{strftime('%H:%M:%S')}]{info}\033[0m", end=end)
+log = lambda info, end=None: print(f"[{strftime('%H:%M:%S')}]{info}", end=end)
+red = lambda info: print(f"\033[31m{info}\033[0m")
+yellow = lambda info: print(f"\033[33m{info}\033[0m")
+blue = lambda info: print(f"\033[34m{info}\033[0m")
+cyan = lambda info: print(f"\033[37m{info}\033[0m")
+
+
+class JsonEdit:
+    def __init__(self, file_path):
+        self.file = file_path
+
+    def read(self):
+        if not os.path.exists(self.file):
+            return {}
+        with open(self.file, 'r+', encoding='utf-8') as pf:
+            try:
+                return json.load(pf)
+            except (AttributeError, ValueError, json.decoder.JSONDecodeError):
+                return {}
+
+    def write(self, data):
+        with open(self.file, 'w+', encoding='utf-8') as pf:
+            json.dump(data, pf, indent=4)
+
+    def edit(self, name, value):
+        data = self.read()
+        data[name] = value
+        self.write(data)
+
+
+# Links
+links = {
+    "erofs_utils": {
+        "link": "https://api.github.com/repos/sekaiacg/erofs-utils/releases/latest",
+        "github_json": True,
+        'rename_pattern':"",
+        # erofs-utils-v1.8.4-gc9629116-Android_arm64-v8a-2501262050.zip
+        "name_pattern": r"erofs-utils-(.*?)-(.*?)-(.*?)-(\D+?)_(.*)?.zip$"
+    },
+    "apftool":{
+        "link": 'https://api.github.com/repos/suyulin/apftool-rs/releases/latest',
+        "github_json": True,
+        #afptool-rs-linux-aarch64.zip
+        'rename_pattern':"afptool-rs-(.*?)-(.*?)$",
+        'name':'afptool',
+        "name_pattern":r'afptool-rs-(.*?)-(.*?)?.zip$'
+    },
+    "apftool-loongarch":{
+        "link": 'https://api.github.com/repos/WeiguangTWK/apftool-rs-loongarch64/releases/latest',
+        "github_json": True,
+        #afptool-rs-linux-aarch64.zip
+        'rename_pattern':"afptool-rs-(.*?)-(.*?)$",
+        'name':'afptool',
+        "name_pattern":r'afptool-rs-(.*?)-(.*?)?.zip$'
+    },
+    "ImgKit":{
+        "link":"https://api.github.com/repos/Kindness-Kismet/ImgKit-Scuti/releases/latest",
+        "github_json":True,
+        "rename_pattern": "imgkit_scuti-(.*?)-(.*?)(?:\\.exe)?$",
+        "name":'imgkit',
+        "name_pattern":r"imgkit_scuti-(.*?)-(.*?)(?:\.exe)?$",
+        "is_binary":True
+    }
+}
+
+
+def download_api(url, path=None, int_=True, size_=0, name: str | None = None):
+    if url is None:
+        LOGE("URL not valid.")
+        return 1
+    if path is None:
+        LOGE("The Path Is Invalid.")
+        return 1
+
+    start_time = time()
+    response = requests.Session().head(url)
+    file_size = int(response.headers.get("Content-Length", 0))
+    response = requests.Session().get(url, stream=True, verify=False)
+    last_time = time()
+    if file_size == 0 and size_:
+        file_size = size_
+    if not name:
+        name = os.path.basename(url)
+    with open(path + os.sep + name, "wb") as f:
+        chunk_size = 2048576
+        chunk_kb = chunk_size / 1024
+        bytes_downloaded = 0
+        for data in response.iter_content(chunk_size=chunk_size):
+            f.write(data)
+            bytes_downloaded += len(data)
+            elapsed = time() - start_time
+            # old method
+            # speed = bytes_downloaded / 1024 / elapsed
+            used_time = time() - last_time
+            speed = chunk_kb / used_time
+            last_time = time()
+            percentage = (int((bytes_downloaded / file_size) * 100) if int_ else (
+                                                                                         bytes_downloaded / file_size) * 100) if file_size != 0 else "None"
+            yield percentage, speed, bytes_downloaded, file_size, elapsed
+        return None
+
+
+class Caller:
+    def __init__(self, ):
+        self.retry_times = 100
+
+    @staticmethod
+    def verity() -> bool:
+        if not os.path.exists(temp):
+            os.makedirs(temp, exist_ok=True)
+        if not os.path.exists(update_info):
+            JsonEdit(update_info).write({})
+        if not os.path.exists('bin/settings.json'):
+            LOGE("Please Run The Tool under the MIO-KITCHEN/TIK Root Dir.")
+            return False
+        return True
+
+    def __call__(self, func):
+        @wraps(func)
+        def call_func(*args, **kwargs):
+            if not self.verity():
+                return lambda *args: ...
+            green(f"Start: [{func.__name__}]")
+            total_times =  self.retry_times
+            while self.retry_times:
+                self.retry_times -= 1
+                try:
+                    ret = func(*args, **kwargs)
+                except Exception as e:
+                    LOGE(f'\nRetry {total_times - self.retry_times} / {total_times} because of {e}')
+                    continue
+                else:
+                    return ret
+            return None
+
+        return call_func
+
+
+caller = Caller()
+arch_list = {
+    "arm64-v8a": "aarch64",
+    "arm64": "aarch64",
+    "armeabi-v7a": "aarch",
+    "x64":"x86_64"
+}
+system_list = {
+    "Cygwin": "Windows",
+    'macos':'Darwin',
+    'windows':"Windows"
+}
+
+
+@caller
+def update(args):
+    origin_info = JsonEdit(update_info).read()
+    for name, content in links.items():
+        blue(f"Updating {name}")
+        if content.get('github_json', False):
+            url = requests.get(content.get('link'))
+            json_: dict = json.loads(url.text)
+            if json_.get("message"):
+                print(json_.get("message"))
+                continue
+            green_1(f"Found {name} {json_.get('tag_name')}")
+            if JsonEdit(update_info).read().get(name) == json_.get('tag_name'):
+                yellow(f"{name} was latest already!")
+                continue
+            origin_info[name] = json_.get('tag_name')
+            assets = json_.get('assets')
+            for a in assets:
+                browser_download_url = a.get('browser_download_url', None)
+                name = a.get('name', None)
+                size = a.get("size", None)
+
+                log(f'Downloading {name}')
+                for percentage, speed, _, _, _ in download_api(url=browser_download_url, name=name, size_=size, path=temp):
+                    green_1(f"\rSpeed {speed}\tPercentage:{percentage} %", end='')
+                downloaded_file = os.path.join(temp, name)
+                groups = re.search(content.get('name_pattern', "*$"), name).groups()
+                if len(groups) == 2:
+                    version, gitid, build_time = ['U', 'U', 'U']
+                    system, arch = groups
+                else:
+                    version, gitid, build_time, system, arch = groups
+                system = system_list.get(system, system)
+                if system == 'Windows' and arch in ['x86_64', "x64"]:
+                    arch = "AMD64"
+                if system == 'Darwin' and arch in ['aarch64', "arm64"]:
+                    arch = 'arm64'
+                else:
+                    arch = arch_list.get(arch, arch)
+                yellow(f"\nVersion:{version}\nGitid:{gitid}\nSystem:{system}\nArch:{arch}")
+                if os.path.exists(downloaded_file):
+                    if not zipfile.is_zipfile(downloaded_file) and not content.get("is_binary",False):
+                        LOGE("Not Update it.Skip")
+                        continue
+                else:
+                    LOGE("Not Update it.Skip")
+                    continue
+                if content.get("is_binary",False):
+                    z_name = name
+                    if content.get('rename_pattern'):
+                        real_name = content.get('name')
+                        if system == 'Windows' and not real_name.endswith('.exe'):
+                            real_name += '.exe'
+                        caught_name = re.search(content.get('rename_pattern', "*$"), z_name).groups()
+                        if not len(caught_name):
+                            return
+                        caught_name = caught_name[0]
+                        if caught_name:
+                            log(f'Will rename {z_name} to {real_name}')
+                    if os.path.exists(f'bin/{system}/{arch}/{real_name}'):
+                        if os.path.exists(f'bin/{system}/{arch}/{real_name}'):
+                            os.remove(f'bin/{system}/{arch}/{real_name}')
+                        os.rename(downloaded_file, f'bin/{system}/{arch}/{real_name}')
+                        green(f"Update {z_name}")
+                else:
+                    with zipfile.ZipFile(downloaded_file) as z:
+                        for z_info in z.infolist():
+                            z_name = z_info.filename
+                            if content.get('rename_pattern'):
+                                real_name = content.get('name')
+                                if system == 'Windows' and not real_name.endswith('.exe'):
+                                    real_name += '.exe'
+                                caught_name = re.search(content.get('rename_pattern', "*$"), z_name).groups()
+                                if not len(caught_name):
+                                    return
+                                caught_name = caught_name[0]
+                                if caught_name:
+                                    log(f'Will rename {z_name} to {real_name}')
+                                    z_info.filename = real_name
+                            if os.path.exists(f'bin/{system}/{arch}/{z_name}'):
+                                z.extract(z_info, path=f'bin/{system}/{arch}')
+                                green(f"Update {z_name}")
+        JsonEdit(update_info).write(origin_info)
+
+
+@caller
+def check_supported(args):
+    file_list = ['brotli', 'busybox', 'dtc', 'e2fsdroid', 'extract.erofs', 'extract.f2fs', 'img2simg','delta_generator',
+                 'lpmake', 'magiskboot', 'make_ext4fs', 'mke2fs', 'mkfs.erofs', 'mkfs.f2fs', 'sload.f2fs', 'zstd','afptool']
+    if platform.machine() != 'x86_64' or platform.system() != 'Linux':
+        file_list.remove('mkfs.f2fs')
+        file_list.remove('extract.f2fs')
+        file_list.remove('delta_generator')
+    if os.name == 'nt':
+        file_list = [f'{i}.exe' for i in file_list]
+        file_list.append('cygwin1.dll')
+        file_list.append('mv.exe')
+    if os.path.exists(tool_bin):
+        LOGS("Your Device was Supported!")
+        lost_binary = [i for i in file_list if not os.path.exists(os.path.join(tool_bin, i))]
+        if lost_binary:
+            LOGE(f"But The Following Binary Were Lost:{lost_binary}")
+    else:
+        LOGE("Your Device Was Not supported Yet.")
+
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(prog='config', description='The tool to config/manage MIO-KITCHEN/TIK',
+                                     exit_on_error=False)
+    subparser = parser.add_subparsers(title='Supported subcommands',
+                                      description='Valid subcommands')
+    unpack_rom_parser = subparser.add_parser('upbin', help="update binary")
+    unpack_rom_parser.set_defaults(func=update)
+    check_support = subparser.add_parser('check', help='check if supported this machine')
+    check_support.set_defaults(func=check_supported)
+    help_support = subparser.add_parser('help', help='print help info')
+    help_support.set_defaults(func=lambda *_:parser.print_help(
+    ))
+    subcmd, subcmd_args = parser.parse_known_args()
+    if not hasattr(subcmd, 'func'):
+        parser.print_help()
+        exit(1)
+    try:
+        subcmd.func(subcmd_args)
+    except TypeError as e:
+        print(e)
+        parser.print_help()
