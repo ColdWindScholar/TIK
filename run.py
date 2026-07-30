@@ -23,7 +23,8 @@ from src.Magisk import Magisk_patch
 import os
 from src.dumper import Dumper
 import builtins
-
+import uvicorn
+from multiprocessing import Process
 if os.name == 'nt':
     import ctypes
 
@@ -599,8 +600,11 @@ class Tool:
         with Console().status(f"[blue]Setting Up Mcp Server...[/]"):
             self.fastapi_app = FastAPI()
             self.mcp_api = FastApiMCP(fastapi=self.fastapi_app, name="Tik5 Mcp Server", description="Tik5 is a android kitchen to modify android roms.")
-            self.mcp_api.mount()
+            self.mcp_api.mount_http()
+            self.mcp_proc = Process(target=uvicorn.run, args=self.fastapi_app, daemon=True)
+            self.mcp_proc.start()
             self.mcp_ready = True
+
     def main(self):
         projects = {}
         pro = 0
@@ -636,7 +640,7 @@ class Tool:
                 projects[str(pro)] = pros
         if settings.mcp_server:
             print("  --------------------------------------")
-            print("  \033[32mMcp Server: https://localhost:8080\033[0m")
+            print(f"  \033[32mMcp Server: http://localhost:8000\033[0m")
         print("  --------------------------------------")
         print("\033[33m  [55] Unpack  [66] Exit  [77] Settings  [88] Download ROM\033[0m\n")
         op_pro = input("  Please enter the number:")
@@ -1045,8 +1049,8 @@ class installmpk:
                 ywarn(f"[!]Installation failed: dependency not met{dep}")
                 input("Enter to return")
                 return False
-        if os.path.exists(binner + os.sep + "subs" + os.sep + self.mconf.get('module', 'identifier')):
-            shutil.rmtree(binner + os.sep + "subs" + os.sep + self.mconf.get('module', 'identifier'))
+        if os.path.exists(binner +"/subs/"  + self.mconf.get('module', 'identifier')):
+            shutil.rmtree(binner + "/subs/"  + self.mconf.get('module', 'identifier'))
         fz = zipfile.ZipFile(BytesIO(self.inner_zipdata), 'r')
         for file in track(self.inner_filenames, description="Installing..."):
             try:
