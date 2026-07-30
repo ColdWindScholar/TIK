@@ -527,9 +527,9 @@ class Metadata:
                 "partition_layout": self._get_partition_layout()
             }
         except Exception:
-            ...
-        finally:
             return result
+        finally:
+            pass
 
     def to_json(self) -> str:
         data = self._get_info()
