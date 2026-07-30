@@ -12,8 +12,7 @@ from argparse import Namespace
 from configparser import ConfigParser
 from io import BytesIO
 from os import path as o_path
-from fastapi import FastAPI
-from fastapi_mcp import FastApiMCP
+import mcp
 from src import version
 from src import languages
 
@@ -23,8 +22,6 @@ from src.Magisk import Magisk_patch
 import os
 from src.dumper import Dumper
 import builtins
-import uvicorn
-from multiprocessing import Process
 if os.name == 'nt':
     import ctypes
 
@@ -598,11 +595,7 @@ class Tool:
         self.mcp_ready = False
     def setup_mcp(self):
         with Console().status(f"[blue]Setting Up Mcp Server...[/]"):
-            self.fastapi_app = FastAPI()
-            self.mcp_api = FastApiMCP(fastapi=self.fastapi_app, name="Tik5 Mcp Server", description="Tik5 is a android kitchen to modify android roms.")
-            self.mcp_api.mount_http()
-            self.mcp_proc = Process(target=uvicorn.run, args=self.fastapi_app, daemon=True)
-            self.mcp_proc.start()
+            self.mcp_api = mcp.server.FastMCP("TIk5")
             self.mcp_ready = True
 
     def main(self):
