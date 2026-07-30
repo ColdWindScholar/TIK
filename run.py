@@ -599,8 +599,7 @@ class Tool:
         with Console().status(f"[blue]Setting Up Mcp Server...[/]"):
             self.fastapi_app = FastAPI()
             self.mcp_api = FastApiMCP(fastapi=self.fastapi_app, name="Tik5 Mcp Server", description="Tik5 is a android kitchen to modify android roms.")
-            self.mcp_api.mount_sse()
-            self.mcp_api.mount_http()
+            self.mcp_api.mount()
             self.mcp_ready = True
     def main(self):
         projects = {}
