@@ -12,7 +12,8 @@ from argparse import Namespace
 from configparser import ConfigParser
 from io import BytesIO
 from os import path as o_path
-
+from fastapi import FastAPI
+from fastapi_mcp import FastApiMCP
 from src import version
 from src import languages
 
@@ -595,7 +596,8 @@ class Tool:
         self.pro = None
     def setup_mcp(self):
         with Console().status(f"[blue]Setting Up Mcp Server...[/]"):
-            time.sleep(100)
+            self.fastapi_app = FastAPI()
+            self.mcp_api = FastApiMCP(self.fastapi_app, name="Tik5 Mcp Server", description="Tik5 is a android kitchen to modify android roms.")
     def main(self):
         projects = {}
         pro = 0
