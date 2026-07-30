@@ -217,6 +217,7 @@ Russian:dict = {
     "Settings": "Настройки"
 }
 Chinese:dict = {
+    "Mcp Server":"MCP服务器",
     "Cannot Remove The Folder, Permission denied.":"无法删除，权限不足",
     "Remove Successful!":"删除成功！",
     "Input error!":"输入错误！",
