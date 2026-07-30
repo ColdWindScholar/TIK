@@ -444,6 +444,7 @@ class setting:
        3>Contexts Patcher \033[93m[{settings.context}]\033[0m\n
        4>Language \033[93m[{settings.language}]\033[0m\n
        5>Check Update \n
+       6>Mcp Server \033[93m[{settings.mcp_server}]\033[0m\n
        0>Previous Menu\n
        --------------------------
             ''')
@@ -470,6 +471,8 @@ class setting:
             settings.change('language', language)
         elif op_pro == '5':
             upgrade()
+        elif op_pro == "6":
+            settings.change('mcp_server', False if settings.mcp_server else True)
         self.settings3()
 
     @staticmethod
