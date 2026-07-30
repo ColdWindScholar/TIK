@@ -13,7 +13,7 @@ from configparser import ConfigParser
 from io import BytesIO
 from os import path as o_path
 
-import version
+from src import version
 from src import languages
 
 from src import banner
@@ -595,7 +595,7 @@ class Tool:
         self.pro = None
     def setup_mcp(self):
         with Console().status(f"[blue]Setting Up Mcp Server...[/]"):
-            pass
+            time.sleep(100)
     def main(self):
         projects = {}
         pro = 0
