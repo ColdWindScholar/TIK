@@ -19,5 +19,6 @@
     "context": "false",
     "language": "English",
     "version": "5.165",
+    "mcp_server": false,
     "oobe": "0"
 }

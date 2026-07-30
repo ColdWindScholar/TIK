@@ -6,3 +6,4 @@ rich
 lxml
 zstandard
 protobuf>=5
+fastapi-mcp
