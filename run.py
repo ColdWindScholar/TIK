@@ -593,10 +593,14 @@ class Tool:
 
     def __init__(self):
         self.pro = None
-
+    def setup_mcp(self):
+        with Console().status(f"[blue]Setting Up Mcp Server...[/]"):
+            pass
     def main(self):
         projects = {}
         pro = 0
+        if settings.mcp_server:
+            self.setup_mcp()
         cls()
         if settings.banner != "6":
             print(f'\033[31m {getattr(banner, "banner%s" % settings.banner)} \033[0m')
@@ -625,6 +629,9 @@ class Tool:
                 pro += 1
                 print(f"   [{pro}]  {pros}\n")
                 projects[str(pro)] = pros
+        if settings.mcp_server:
+            print("  --------------------------------------")
+            print("  \033[32mMcp Server: https://localhost:8080\033[0m")
         print("  --------------------------------------")
         print("\033[33m  [55] Unpack  [66] Exit  [77] Settings  [88] Download ROM\033[0m\n")
         op_pro = input("  Please enter the number:")
