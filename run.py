@@ -485,6 +485,7 @@ class setting:
         print(f"\033[93mAuthor:\033[0m \033[92mColdWindScholar\033[0m")
         print(f"\033[93mOpen Source Link:\033[0m \033[91mhttps://github.com/ColdWindScholar/TIK\033[0m")
         print(f"\033[93mVersion:\033[0m \033[44mAlpha Edition\033[0m")
+        print(f"\033[93mBuild Version:\033[0m \033[68m{settings.version}\033[0m")
         print(f"\033[93mOpen Source License:\033[0m \033[68mGNU General Public License v3.0 \033[0m")
         print('\033[31m---------------------------------\033[0m')
         print(f"\033[93mThanks to:\033[0m")
