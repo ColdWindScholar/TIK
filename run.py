@@ -595,7 +595,7 @@ class Tool:
         self.mcp_ready = False
     def setup_mcp(self):
         with Console().status(f"[blue]Setting Up Mcp Server...[/]"):
-            self.mcp_api = mcp.server.FastMCP("TIk5")
+            self.mcp_api = mcp.server.MCPServer("Tik5")
             self.mcp_ready = True
 
     def main(self):
