@@ -13,6 +13,7 @@ from configparser import ConfigParser
 from io import BytesIO
 from os import path as o_path
 
+import version
 from src import languages
 
 from src import banner
@@ -212,7 +213,7 @@ class set_utils:
     def __init__(self, path):
         self.path = path
         self.language_dict = {}
-
+        self.version = version.tool_version
     def load_set(self):
         with open(self.path, 'r') as ss:
             data = json.load(ss)
