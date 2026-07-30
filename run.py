@@ -594,15 +594,18 @@ class Tool:
 
     def __init__(self):
         self.pro = None
+        self.mcp_ready = False
     def setup_mcp(self):
         with Console().status(f"[blue]Setting Up Mcp Server...[/]"):
             self.fastapi_app = FastAPI()
-            self.mcp_api = FastApiMCP(self.fastapi_app, name="Tik5 Mcp Server", description="Tik5 is a android kitchen to modify android roms.")
-            self.mcp_api.mount()
+            self.mcp_api = FastApiMCP(fastapi=self.fastapi_app, name="Tik5 Mcp Server", description="Tik5 is a android kitchen to modify android roms.")
+            self.mcp_api.mount_sse()
+            self.mcp_api.mount_http()
+            self.mcp_ready = True
     def main(self):
         projects = {}
         pro = 0
-        if settings.mcp_server:
+        if settings.mcp_server and not self.mcp_ready:
             self.setup_mcp()
         cls()
         if settings.banner != "6":
