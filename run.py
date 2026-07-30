@@ -167,7 +167,8 @@ class Welcome:
         self.steps = {
             0: self.welcome,
             1: self.language,
-            2: self.done
+            2: self.set_mcp,
+            3: self.done
         }
         self.change_page()
 
@@ -203,6 +204,12 @@ class Welcome:
         language = language_list.get(input_value, languages.default)
         settings.change('language', language)
 
+    def set_mcp(self):
+        input_value = "None"
+        while not input_value.isdigit():
+            input_value = input("\033[94mEnable Mcp server for ai agent?[1/0]\033[0m")
+        input_value = int(input_value)
+        settings.change("mcp_server", input_value == 1)
     def done(self):
         input("Well Done! Let's Try New Tik!")
 
@@ -256,7 +263,7 @@ class set_utils:
 
 settings = set_utils(setfile)
 settings.load_set()
-if int(settings.oobe) < 2:
+if int(settings.oobe) < 3:
     Welcome(step=int(settings.oobe))
 
 class upgrade:
