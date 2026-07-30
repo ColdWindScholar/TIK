@@ -12,6 +12,8 @@ from argparse import Namespace
 from configparser import ConfigParser
 from io import BytesIO
 from os import path as o_path
+from threading import Thread
+
 import mcp
 from src import version
 from src import languages
@@ -595,7 +597,8 @@ class Tool:
         self.mcp_ready = False
     def setup_mcp(self):
         with Console().status(f"[blue]Setting Up Mcp Server...[/]"):
-            self.mcp_api = mcp.server.MCPServer("Tik5")
+            self.mcp = mcp.server.MCPServer("Tik5")
+            #todo: impl mcp apis
             self.mcp_ready = True
 
     def main(self):
