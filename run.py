@@ -458,9 +458,9 @@ class setting:
                 if 0 < int(banner_i) < 7:
                     settings.change('banner', banner_i)
         elif op_pro == '2':
-            settings.change('online', 'false' if settings.online == 'true' else 'true')
+            settings.change('online', False if settings.online else True)
         elif op_pro == '3':
-            settings.change('context', 'false' if settings.context == 'true' else 'true')
+            settings.change('context', False if settings.context else True)
         elif op_pro == '4':
             language_list = {index + 1: lan for index, lan in enumerate(dir(languages)) if
                              lan != 'default' and not lan.startswith("_") and not lan.endswith('_')}
@@ -594,7 +594,7 @@ class Tool:
         else:
             print("=" * 50)
         print("\033[93;44m Alpha Edition \033[0m")
-        if settings.online == 'true':
+        if settings.online:
             try:
                 content = json.loads(requests.get('https://v1.jinrishici.com/all.json', timeout=2).content.decode())
                 shiju = content['content']
@@ -1583,7 +1583,7 @@ def inpacker(name, project, form, ftype, json_=None):
     elif settings.diysize == '':
         img_size0 = dirsize(in_files, 1, 3, project + os.sep + "dynamic_partitions_op_list").rsize_v
     fspatch.main(in_files, fs_config)
-    if settings.context == 'true' and os.path.exists(file_contexts):
+    if settings.context and os.path.exists(file_contexts):
         contextpatch.main(in_files, file_contexts)
     if os.path.exists(file_contexts):
         utils.qc(file_contexts)
